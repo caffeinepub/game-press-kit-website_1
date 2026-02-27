@@ -1,34 +1,67 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T15:56:55.912Z",
+  "generatedAt": "2026-02-27T17:00:18.456Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 1,
-    "implemented": 1,
+    "total": 4,
+    "implemented": 2,
     "items": [
       {
-        "id": "REQ-26",
-        "summary": "On the Landing page (frontend/src/pages/LandingPage.tsx), remove the newsletter signup/subscribe component (email input and Subscribe button) and remove any 'Welcome to our game' heading or text. Keep the game logo, the CMS-driven game description paragraph, and the 'View Press Kit' CTA button.",
+        "id": "REQ-28",
+        "summary": "Add a `resetAdmin()` public update function to the Motoko backend that sets the `adminPrincipal` stable variable back to `null` (opt Principal null). This function must have NO access control guard — any caller can invoke it once to clear the admin. After it is called, the admin slot is empty and the next call to `initializeAdmin()` will claim it. Do not clear any other CMS stable variables.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-29",
+        "summary": "Fix the `initializeAdmin()` backend function to correctly check whether an admin has already been initialized before allowing a new one to claim it. Ensure the check uses a proper null/option comparison so that after `resetAdmin()` clears the principal, `initializeAdmin()` correctly recognizes the slot as empty and allows the calling principal to become admin. If an admin is already set, reject with 'Admin already initialized'.",
+        "status": "unknown",
+        "plannedFiles": [],
+        "matchedFiles": []
+      },
+      {
+        "id": "REQ-30",
+        "summary": "On the AdminDashboard page (frontend/src/pages/AdminDashboard.tsx), after the user logs in via Internet Identity, call `getAdminStatus()` to check if an admin exists. If no admin exists (returns false), automatically call `initializeAdmin()` to claim the slot. Then re-query admin status to confirm. If the user is now admin, render the dashboard. If still not admin (another principal already claimed it), show the access denied message with the login button. Ensure the logic correctly re-evaluates after each async step so the UI reflects the true state.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/LandingPage.tsx"
+          "frontend/src/pages/AdminDashboard.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/LandingPage.tsx"
+          "frontend/src/pages/AdminDashboard.tsx"
+        ]
+      },
+      {
+        "id": "REQ-31",
+        "summary": "Add a visible 'Reset Admin Access' button on the AdminDashboard access-denied screen (frontend/src/pages/AdminDashboard.tsx). When clicked, this button calls the `resetAdmin()` backend function, then automatically triggers the `initializeAdmin()` flow so the currently logged-in user claims admin. If the user is not yet logged in, prompt them to log in first before the reset button is available. Style the button in the monochrome editorial style (black background, white text, or outlined ghost style — no colors outside #000000, #FFFFFF, grayscale).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/AdminDashboard.tsx",
+          "frontend/src/hooks/useQueries.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/AdminDashboard.tsx",
+          "frontend/src/hooks/useQueries.ts"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/pages/LandingPage.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useQueries.ts",
+    "frontend/src/pages/AdminDashboard.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

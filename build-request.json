@@ -1,35 +1,105 @@
 {
   "kind": "build_request",
-  "title": "Remove newsletter subscribe component and 'Welcome to our game' text from Landing page",
-  "priority": "normal",
+  "title": "Fix admin system: add reset endpoint and correct principal-based admin initialization",
+  "projectName": "Poke A Nose Press Kit",
+  "priority": "high",
   "requirements": [
     {
-      "id": "REQ-26",
-      "text": "On the Landing page (frontend/src/pages/LandingPage.tsx), remove the newsletter signup/subscribe component (email input and Subscribe button) and remove any 'Welcome to our game' heading or text. Keep the game logo, the CMS-driven game description paragraph, and the 'View Press Kit' CTA button.",
-      "target": "frontend",
+      "id": "REQ-28",
+      "text": "Add a `resetAdmin()` public update function to the Motoko backend that sets the `adminPrincipal` stable variable back to `null` (opt Principal null). This function must have NO access control guard — any caller can invoke it once to clear the admin. After it is called, the admin slot is empty and the next call to `initializeAdmin()` will claim it. Do not clear any other CMS stable variables.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-recent"
         ],
         "quotes": [
-          "please on the welcome page remove the subscribe and welcome to our game."
+          "option one",
+          "i dont trust that the current principle id system works. correct it"
         ]
       },
       "acceptanceCriteria": [
-        "The newsletter email input and Subscribe button are no longer rendered on the Landing page.",
-        "Any 'Welcome to our game' heading or label text is no longer visible on the Landing page.",
-        "The game logo (gamelogo.png) remains displayed at natural/responsive size.",
-        "The CMS-driven game description paragraph remains visible.",
-        "The 'View Press Kit' CTA button remains visible and navigates to /press-kit.",
-        "No layout regressions or broken spacing on the Landing page."
+        "Calling resetAdmin() sets adminPrincipal to null in stable storage",
+        "After resetAdmin(), getAdminStatus() returns false",
+        "After resetAdmin(), calling initializeAdmin() from any principal successfully sets that principal as admin",
+        "No CMS content (aboutText, features, gameDetails, etc.) is affected by resetAdmin()",
+        "resetAdmin() is callable without authentication"
+      ]
+    },
+    {
+      "id": "REQ-29",
+      "text": "Fix the `initializeAdmin()` backend function to correctly check whether an admin has already been initialized before allowing a new one to claim it. Ensure the check uses a proper null/option comparison so that after `resetAdmin()` clears the principal, `initializeAdmin()` correctly recognizes the slot as empty and allows the calling principal to become admin. If an admin is already set, reject with 'Admin already initialized'.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-recent"
+        ],
+        "quotes": [
+          "i dont trust that the current principle id system works. correct it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "initializeAdmin() succeeds when adminPrincipal is null",
+        "initializeAdmin() rejects with 'Admin already initialized' when adminPrincipal is already set",
+        "The calling principal is stored correctly in adminPrincipal after a successful call",
+        "getAdminStatus() returns true immediately after initializeAdmin() succeeds",
+        "isAdmin() returns true for the principal that called initializeAdmin()"
+      ]
+    },
+    {
+      "id": "REQ-30",
+      "text": "On the AdminDashboard page (frontend/src/pages/AdminDashboard.tsx), after the user logs in via Internet Identity, call `getAdminStatus()` to check if an admin exists. If no admin exists (returns false), automatically call `initializeAdmin()` to claim the slot. Then re-query admin status to confirm. If the user is now admin, render the dashboard. If still not admin (another principal already claimed it), show the access denied message with the login button. Ensure the logic correctly re-evaluates after each async step so the UI reflects the true state.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-recent"
+        ],
+        "quotes": [
+          "i dont trust that the current principle id system works. correct it",
+          "option one"
+        ]
+      },
+      "acceptanceCriteria": [
+        "After login, getAdminStatus() is called before deciding whether to show dashboard or access denied",
+        "If no admin is set, initializeAdmin() is called automatically and the user gains admin access",
+        "If admin is already set and matches the logged-in principal, dashboard renders correctly",
+        "If admin is already set and does not match, access denied screen is shown",
+        "The UI does not get stuck in a loading or stale state after the login + initialize sequence",
+        "React Query cache is invalidated or refetched after initializeAdmin() so fresh admin status is used"
+      ]
+    },
+    {
+      "id": "REQ-31",
+      "text": "Add a visible 'Reset Admin Access' button on the AdminDashboard access-denied screen (frontend/src/pages/AdminDashboard.tsx). When clicked, this button calls the `resetAdmin()` backend function, then automatically triggers the `initializeAdmin()` flow so the currently logged-in user claims admin. If the user is not yet logged in, prompt them to log in first before the reset button is available. Style the button in the monochrome editorial style (black background, white text, or outlined ghost style — no colors outside #000000, #FFFFFF, grayscale).",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-recent"
+        ],
+        "quotes": [
+          "option one",
+          "i dont trust that the current principle id system works. correct it"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Reset Admin Access button appears on the access denied screen only when the user is authenticated",
+        "Clicking the button calls resetAdmin() followed by initializeAdmin()",
+        "After successful reset and claim, the dashboard renders for the new admin",
+        "Button is styled with monochrome colors only",
+        "Loading state is shown while reset/initialize is in progress",
+        "Error state is shown if the operation fails"
       ]
     }
   ],
-  "constraints": [],
+  "constraints": [
+    "Do not clear any CMS content stable variables (aboutText, features, gameDetails, instagramLink, developerLink, pressEmail, bodyTextColor, gameTitle, tagline, passwordEnabled, passwordHash) when resetting admin",
+    "All frontend immutable paths must not be modified",
+    "Monochrome editorial style enforced — no colors outside #000000, #FFFFFF, and grayscale tones"
+  ],
   "nonGoals": [
-    "Modifying any other page (Press Kit, Admin Dashboard, Settings).",
-    "Removing or altering backend CMS fields.",
-    "Changing the newsletter component on any page other than the Landing page."
+    "Replacing Internet Identity with a passphrase-based admin system",
+    "Modifying any CMS content or press kit features",
+    "Adding multi-admin support",
+    "Changing any other backend functions beyond initializeAdmin and the new resetAdmin"
   ],
   "imageRequirements": {
     "required": [],

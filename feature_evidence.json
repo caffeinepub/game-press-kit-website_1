@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-on-the-landing-page-frontend-src-pages-landingpage-tsx-remove-the-newsletter-signup-subscribe-component-email-input-and-subscribe-button-and-remove-any-welcome-to-our-game-heading-or-text-keep-the-game-logo-the-cms-driven-game-description-paragraph-and-the-view-press-kit-cta-button",
-      "featureTitle": "On the Landing page (frontend/src/pages/LandingPage.tsx), remove the newsletter signup/subscribe component (email input and Subscribe button) and remove any 'Welcome to our game' heading or text. Keep the game logo, the CMS-driven game description paragraph, and the 'View Press Kit' CTA button.",
+      "featureId": "feature-on-the-admindashboard-page-frontend-src-pages-admindashboard-tsx-after-the-user-logs-in-via-internet-identity-call-getadminstatus-to-check-if-an-admin-exists-if-no-admin-exists-returns-false-automatically-call-initializeadmin-to-claim-the-slot-then-re-query-admin-status-to-confirm-if-the-user-is-now-admin-render-the-dashboard-if-still-not-admin-another-principal-already-claimed-it-show-the-access-denied-message-with-the-login-button-ensure-the-logic-correctly-re-evaluates-after-each-async-step-so-the-ui-reflects-the-true-state",
+      "featureTitle": "On the AdminDashboard page (frontend/src/pages/AdminDashboard.tsx), after the user logs in via Internet Identity, call `getAdminStatus()` to check if an admin exists. If no admin exists (returns false), automatically call `initializeAdmin()` to claim the slot. Then re-query admin status to confirm. If the user is now admin, render the dashboard. If still not admin (another principal already claimed it), show the access denied message with the login button. Ensure the logic correctly re-evaluates after each async step so the UI reflects the true state.",
       "files": [
-        "frontend/src/pages/LandingPage.tsx"
+        "frontend/src/pages/AdminDashboard.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,7 +16,27 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-26"
+        "REQ-30"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-visible-reset-admin-access-button-on-the-admindashboard-access-denied-screen-frontend-src-pages-admindashboard-tsx-when-clicked-this-button-calls-the-resetadmin-backend-function-then-automatically-triggers-the-initializeadmin-flow-so-the-currently-logged-in-user-claims-admin-if-the-user-is-not-yet-logged-in-prompt-them-to-log-in-first-before-the-reset-button-is-available-style-the-button-in-the-monochrome-editorial-style-black-background-white-text-or-outlined-ghost-style-no-colors-outside-000000-ffffff-grayscale",
+      "featureTitle": "Add a visible 'Reset Admin Access' button on the AdminDashboard access-denied screen (frontend/src/pages/AdminDashboard.tsx). When clicked, this button calls the `resetAdmin()` backend function, then automatically triggers the `initializeAdmin()` flow so the currently logged-in user claims admin. If the user is not yet logged in, prompt them to log in first before the reset button is available. Style the button in the monochrome editorial style (black background, white text, or outlined ghost style — no colors outside #000000, #FFFFFF, grayscale).",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/AdminDashboard.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-31"
       ],
       "confidence": "high"
     }

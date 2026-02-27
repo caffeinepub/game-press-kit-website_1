@@ -51,6 +51,7 @@ export interface backendInterface {
     initializeAdmin(adminToken: string, userProvidedToken: string): Promise<AdminResult>;
     isAdmin(principal: Principal): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
+    resetAdmin(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updateAboutText(text: string): Promise<UpdateContentResult>;
     updateBodyTextColor(color: string): Promise<UpdateContentResult>;

@@ -4,10 +4,9 @@ import Array "mo:core/Array";
 import List "mo:core/List";
 import Nat "mo:core/Nat";
 import Map "mo:core/Map";
+import Runtime "mo:core/Runtime";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-
-
 
 actor {
   public type GameDetails = {
@@ -33,6 +32,9 @@ actor {
   // Access control state
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
+
+  // Stable variable to track whether an admin has been initialized
+  stable var adminPrincipal : ?Principal = null;
 
   // User profiles
   let userProfiles = Map.empty<Principal, UserProfile>();
@@ -90,15 +92,27 @@ actor {
     result;
   };
 
+  // No access control guard — any caller can reset the admin slot
+  public shared func resetAdmin() : async () {
+    adminPrincipal := null;
+  };
+
   public shared ({ caller }) func initializeAdmin(adminToken : Text, userProvidedToken : Text) : async AdminResult {
     if (caller.isAnonymous()) {
       return #error("Anonymous principals cannot become admin");
     };
-    if (AccessControl.isAdmin(accessControlState, caller)) {
-      return #error("Admin already initialized");
+    // Check if admin slot is already occupied using the stable variable
+    switch (adminPrincipal) {
+      case (?_existing) {
+        return #error("Admin already initialized");
+      };
+      case null {
+        // Slot is empty, allow this caller to claim admin
+        adminPrincipal := ?caller;
+        AccessControl.initialize(accessControlState, caller, adminToken, userProvidedToken);
+        return #success;
+      };
     };
-    AccessControl.initialize(accessControlState, caller, adminToken, userProvidedToken);
-    #success;
   };
 
   public query ({ caller }) func getAdminStatus() : async Bool {

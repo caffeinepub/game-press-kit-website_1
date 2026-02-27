@@ -188,6 +188,20 @@ export function useInitializeAdmin() {
   });
 }
 
+// ─── Reset Admin mutation ─────────────────────────────────────────────────────
+
+export function useResetAdmin() {
+  const { actor } = useActor();
+  return useMutation({
+    mutationFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      await actor.resetAdmin();
+    },
+    // No cache invalidation here — let the calling component handle it
+    // after the full reset + re-initialize sequence completes
+  });
+}
+
 // ─── Update mutations ─────────────────────────────────────────────────────────
 
 function useUpdateMutation<T>(

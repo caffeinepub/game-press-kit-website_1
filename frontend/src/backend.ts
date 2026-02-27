@@ -134,6 +134,7 @@ export interface backendInterface {
     initializeAdmin(adminToken: string, userProvidedToken: string): Promise<AdminResult>;
     isAdmin(principal: Principal): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
+    resetAdmin(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     updateAboutText(text: string): Promise<UpdateContentResult>;
     updateBodyTextColor(color: string): Promise<UpdateContentResult>;
@@ -426,6 +427,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.isCallerAdmin();
+            return result;
+        }
+    }
+    async resetAdmin(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.resetAdmin();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.resetAdmin();
             return result;
         }
     }

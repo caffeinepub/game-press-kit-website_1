@@ -1,24 +1,48 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Remove newsletter subscribe component and 'Welcome to our game' text from Landing page",
+  "title": "Fix admin system: add reset endpoint and correct principal-based admin initialization",
   "requirements": [
     {
-      "id": "REQ-26",
-      "summary": "Remove the newsletter signup/subscribe component (email input and Subscribe button) and any 'Welcome to our game' heading or text from the Landing page, while preserving the game logo, CMS-driven description paragraph, and 'View Press Kit' CTA button",
+      "id": "REQ-30",
+      "summary": "Auto-initialize admin after login if no admin exists, with correct state evaluation",
       "acceptanceCriteria": [
-        "The newsletter email input and Subscribe button are no longer rendered on the Landing page.",
-        "Any 'Welcome to our game' heading or label text is no longer visible on the Landing page.",
-        "The game logo (gamelogo.png) remains displayed at natural/responsive size.",
-        "The CMS-driven game description paragraph remains visible.",
-        "The 'View Press Kit' CTA button remains visible and navigates to /press-kit.",
-        "No layout regressions or broken spacing on the Landing page."
+        "After login, getAdminStatus() is called before deciding whether to show dashboard or access denied",
+        "If no admin is set, initializeAdmin() is called automatically and the user gains admin access",
+        "If admin is already set and matches the logged-in principal, dashboard renders correctly",
+        "If admin is already set and does not match, access denied screen is shown",
+        "The UI does not get stuck in a loading or stale state after the login + initialize sequence",
+        "React Query cache is invalidated or refetched after initializeAdmin() so fresh admin status is used"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/LandingPage.tsx",
+          "path": "frontend/src/pages/AdminDashboard.tsx",
           "operation": "modify",
-          "description": "Remove the newsletter signup form (email input field and Subscribe button) and any 'Welcome to our game' heading or text from the component. Retain the game logo image (frontend/public/assets/gamelogo.png), the CMS-driven game description paragraph fetched via useAboutText, and the 'View Press Kit' CTA button that navigates to /press-kit. Ensure no layout regressions occur after removal."
+          "description": "Modify the admin authentication flow to call getAdminStatus() after login, then auto-call initializeAdmin() if no admin exists. After initializeAdmin() succeeds, invalidate the React Query cache for admin status and re-query to confirm the user is now admin. Ensure the UI correctly reflects the true state after each async step (login → check status → initialize if empty → re-check → render dashboard or access denied). Use the authorization component's backend capabilities for getAdminStatus() and initializeAdmin(). Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-31",
+      "summary": "Add Reset Admin Access button on access-denied screen with monochrome styling",
+      "acceptanceCriteria": [
+        "Reset Admin Access button appears on the access denied screen only when the user is authenticated",
+        "Clicking the button calls resetAdmin() followed by initializeAdmin()",
+        "After successful reset and claim, the dashboard renders for the new admin",
+        "Button is styled with monochrome colors only",
+        "Loading state is shown while reset/initialize is in progress",
+        "Error state is shown if the operation fails"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AdminDashboard.tsx",
+          "operation": "modify",
+          "description": "Add a 'Reset Admin Access' button to the access-denied screen that only appears when the user is authenticated. On click, call resetAdmin() from the backend, then immediately call initializeAdmin() to claim admin for the current user. Show loading state during the operation and error state if it fails. After success, invalidate React Query cache and re-render the dashboard. Style the button in monochrome editorial style (black background with white text or outlined ghost style, using only #000000, #FFFFFF, and grayscale tones). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add a React Query mutation hook for the resetAdmin() backend capability. This hook should call actor.resetAdmin(), return the result, and provide loading/error states. Do not include invalidation logic in the hook itself; let the calling component handle cache invalidation after the mutation succeeds."
         }
       ]
     }

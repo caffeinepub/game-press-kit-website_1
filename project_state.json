@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 15,
+  "projectStateVersion": 19,
   "summary": "Black-and-white Game Press Kit Website with Internet Identity auth, admin CMS, optional password-protected press kit, dark/light theme toggle, and persistent ICP backend storage. First authenticated principal becomes permanent admin. ShadCN-inspired monochrome editorial aesthetic.",
   "architectural_notes": [
     "ICP canister backend with Motoko/Rust stable variables for persistent storage",
@@ -17,7 +17,7 @@
     "Fullscreen screenshot close-on-image-click not working as expected",
     "/admin login returns 'access denied' — admin principal needs reset"
   ],
-  "isFixRequest": false,
+  "isFixRequest": true,
   "existing_features": [
     {
       "id": "feature-build-a-global-react-app-shell-with-react-router-providing-four-routes-landing-press-kit-press-kit-admin-cms-dashboard-admin-settings-settings-include-a-persistent-header-on-all-pages-with-the-game-logo-gamelogo-png-on-the-left-a-dark-light-theme-toggle-on-the-right-and-a-sign-in-button-when-logged-out-when-the-authenticated-user-is-the-admin-replace-sign-in-with-an-edit-toggle-button-that-enables-cms-editing-mode-site-wide-use-fredoka-one-font-for-all-headings-loaded-via-google-fonts",
@@ -152,6 +152,30 @@
       "title": "On the Landing page (frontend/src/pages/LandingPage.tsx), remove the newsletter signup/subscribe component (email input and Subscribe button) and remove any 'Welcome to our game' heading or text. Keep the game logo, the CMS-driven game description paragraph, and the 'View Press Kit' CTA button.",
       "reqIds": [
         "REQ-26"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-admindashboard-page-frontend-src-pages-admindashboard-tsx-when-a-visitor-is-not-authenticated-or-is-authenticated-but-not-admin-and-sees-the-access-denied-message-render-an-internet-identity-login-button-directly-on-that-screen-the-button-should-trigger-the-internet-identity-login-flow-using-the-existing-useinternetidentity-hook-s-login-function-after-a-successful-login-the-page-should-re-evaluate-admin-status-and-auto-call-initializeadmin-if-no-admin-is-set-yet-consistent-with-the-existing-auto-initialize-logic-the-button-must-be-styled-in-the-site-s-monochrome-editorial-style-no-colors-outside-000000-ffffff-and-grayscale-tones",
+      "title": "On the AdminDashboard page (frontend/src/pages/AdminDashboard.tsx), when a visitor is not authenticated or is authenticated but not admin and sees the 'Access Denied' message, render an Internet Identity login button directly on that screen. The button should trigger the Internet Identity login flow (using the existing useInternetIdentity hook's login function). After a successful login, the page should re-evaluate admin status and auto-call initializeAdmin() if no admin is set yet, consistent with the existing auto-initialize logic. The button must be styled in the site's monochrome editorial style (no colors outside #000000, #FFFFFF, and grayscale tones).",
+      "reqIds": [
+        "REQ-27"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-admindashboard-page-frontend-src-pages-admindashboard-tsx-after-the-user-logs-in-via-internet-identity-call-getadminstatus-to-check-if-an-admin-exists-if-no-admin-exists-returns-false-automatically-call-initializeadmin-to-claim-the-slot-then-re-query-admin-status-to-confirm-if-the-user-is-now-admin-render-the-dashboard-if-still-not-admin-another-principal-already-claimed-it-show-the-access-denied-message-with-the-login-button-ensure-the-logic-correctly-re-evaluates-after-each-async-step-so-the-ui-reflects-the-true-state",
+      "title": "On the AdminDashboard page (frontend/src/pages/AdminDashboard.tsx), after the user logs in via Internet Identity, call `getAdminStatus()` to check if an admin exists. If no admin exists (returns false), automatically call `initializeAdmin()` to claim the slot. Then re-query admin status to confirm. If the user is now admin, render the dashboard. If still not admin (another principal already claimed it), show the access denied message with the login button. Ensure the logic correctly re-evaluates after each async step so the UI reflects the true state.",
+      "reqIds": [
+        "REQ-30"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-visible-reset-admin-access-button-on-the-admindashboard-access-denied-screen-frontend-src-pages-admindashboard-tsx-when-clicked-this-button-calls-the-resetadmin-backend-function-then-automatically-triggers-the-initializeadmin-flow-so-the-currently-logged-in-user-claims-admin-if-the-user-is-not-yet-logged-in-prompt-them-to-log-in-first-before-the-reset-button-is-available-style-the-button-in-the-monochrome-editorial-style-black-background-white-text-or-outlined-ghost-style-no-colors-outside-000000-ffffff-grayscale",
+      "title": "Add a visible 'Reset Admin Access' button on the AdminDashboard access-denied screen (frontend/src/pages/AdminDashboard.tsx). When clicked, this button calls the `resetAdmin()` backend function, then automatically triggers the `initializeAdmin()` flow so the currently logged-in user claims admin. If the user is not yet logged in, prompt them to log in first before the reset button is available. Style the button in the monochrome editorial style (black background, white text, or outlined ghost style — no colors outside #000000, #FFFFFF, grayscale).",
+      "reqIds": [
+        "REQ-31"
       ],
       "version": 1
     }
@@ -323,6 +347,28 @@
       "id": "AR-28",
       "summary": "On the landing/welcome page, remove the newsletter subscribe component and the 'Welcome to our game' text",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-29",
+      "summary": "On the 'Access Denied' page/message shown when non-admin visits /admin, add an Internet Identity login button so users can authenticate directly from that screen without needing access to the header",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-30",
+      "summary": "Add a `resetAdmin()` public update function to the Motoko backend that sets the `adminPrincipal` stable variable back to `null` (opt Principal null). This function must have NO access control guard — any caller can invoke it once to clear the admin. After it is called, the admin slot is empty and the next call to `initializeAdmin()` will claim it. Do not clear any other CMS stable variables.",
+      "reqIds": [
+        "REQ-28"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-31",
+      "summary": "Fix the `initializeAdmin()` backend function to correctly check whether an admin has already been initialized before allowing a new one to claim it. Ensure the check uses a proper null/option comparison so that after `resetAdmin()` clears the principal, `initializeAdmin()` correctly recognizes the slot as empty and allows the calling principal to become admin. If an admin is already set, reject with 'Admin already initialized'.",
+      "reqIds": [
+        "REQ-29"
+      ],
       "status": "pending"
     }
   ],

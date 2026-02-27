@@ -44,6 +44,7 @@ export interface _SERVICE {
   'initializeAdmin' : ActorMethod<[string, string], AdminResult>,
   'isAdmin' : ActorMethod<[Principal], boolean>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'resetAdmin' : ActorMethod<[], undefined>,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'updateAboutText' : ActorMethod<[string], UpdateContentResult>,
   'updateBodyTextColor' : ActorMethod<[string], UpdateContentResult>,
