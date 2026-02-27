@@ -1,0 +1,20 @@
+{
+  "frontend/index.html": "HTML entry point with Fredoka One and Inter fonts loaded from Google Fonts, and updated page title.",
+  "frontend/src/index.css": "Complete monochrome OKLCH design system with strict black/white/grayscale palette, Fredoka One headings, body text color CSS variable, dark mode inversion rules, and editorial typography utilities.",
+  "frontend/tailwind.config.js": "Tailwind config with Fredoka One/Inter font families, zero border-radius for editorial aesthetic, monochrome color tokens, and fade-in animation keyframes.",
+  "frontend/src/hooks/useTheme.ts": "Custom hook managing light/dark theme state with localStorage persistence and document class toggling.",
+  "frontend/src/hooks/useEditMode.ts": "Context and hook for global CMS editing mode state with toggle and set functions.",
+  "frontend/src/hooks/useQueries.ts": "All React Query hooks for reading and mutating backend CMS content, admin status, password protection, and body text color.",
+  "frontend/src/App.tsx": "Main app with TanStack Router (4 routes), ThemeContext provider, EditModeContext, layout with persistent Header, profile setup modal for new admins, and body text color CSS variable application.",
+  "frontend/src/components/Header.tsx": "Sticky header with game logo, dark/light theme toggle, Sign In/Out button, and admin Edit toggle + Settings navigation button.",
+  "frontend/src/pages/LandingPage.tsx": "Landing page with background image, game logo, about text from backend, newsletter placeholder form, and View Press Kit CTA.",
+  "frontend/src/pages/PressKitPage.tsx": "Full press kit page with password protection gate, all CMS sections (hero, video modal with updated YouTube video ID C-Q0-2kiFhs and playsinline/fs=0 params, about, features, game details, screenshots gallery with fullscreen that closes on image click, social, developer, press contact, footer), and inline admin editing. Navigation arrows removed from fullscreen overlay; clicking the image or backdrop closes fullscreen.",
+  "frontend/src/components/InlineEditableField.tsx": "Reusable inline editable text field that shows click-to-edit affordance in admin editing mode with save/cancel keyboard support.",
+  "frontend/src/components/EditableFeaturesList.tsx": "Features list component with add/remove/edit controls in editing mode and save button when dirty.",
+  "frontend/src/components/PasswordModal.tsx": "Theme-aware password modal with smooth light/dark transitions, error display, and verify callback.",
+  "frontend/src/pages/AdminDashboard.tsx": "Admin-only CMS dashboard with access denied guard, left sidebar navigation, and section-based content editor.",
+  "frontend/src/components/AdminSidebar.tsx": "Fixed left sidebar for admin pages with navigation links to Content, Media, Social, and Settings sections.",
+  "frontend/src/components/CMSContentEditor.tsx": "Section-based CMS editor rendering Content (title, tagline, about, features, game details), Media (screenshot preview), or Social (links, email) editors.",
+  "frontend/src/components/CMSFieldEditor.tsx": "Reusable form field editor with label, text/textarea input, save button with loading/saved states, and dirty tracking.",
+  "frontend/src/pages/SettingsPage.tsx": "Admin settings page with password protection toggle/enable/disable/regenerate controls and grayscale body text color picker with custom hex input."
+}

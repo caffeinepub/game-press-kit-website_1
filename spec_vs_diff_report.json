@@ -1,0 +1,25 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-27T14:54:52.797Z",
+  "summary": "All three requirements (REQ-19, REQ-20, REQ-21) appear to be implemented in the diff. REQ-19 is addressed by updating VIDEO_ID to 'C-Q0-2kiFhs' with playsinline/fs=0 params in PressKitPage.tsx. REQ-20 is addressed by adding a click handler on the image element to close fullscreen and removing navigation arrows. REQ-21 is addressed via the migration.mo file that resets accessControlState while preserving all other CMS variables.",
+  "missing_requirements": [],
+  "hallucinated_features": [
+    {
+      "description": "A migration module (backend/migration.mo) was added that resets accessControlState via a full Actor migration pattern, introducing new migration infrastructure not mentioned in the build request.",
+      "reason": "REQ-21 requested clearing the stored adminPrincipal stable variable directly. The diff instead introduces a full migration.mo module with an Actor type definition and a run() function. While this accomplishes the goal, it introduces an entirely new migration infrastructure pattern not mentioned in the build request.",
+      "evidence": [
+        "backend/migration.mo",
+        "backend/main.mo"
+      ]
+    }
+  ],
+  "confidence": 0.72,
+  "changed_files": [
+    "backend/main.mo",
+    "backend/migration.mo",
+    "frontend-file-summaries.txt",
+    "frontend/src/pages/PressKitPage.tsx",
+    "project_state.json"
+  ]
+}

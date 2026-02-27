@@ -1,0 +1,43 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-update-the-youtube-embed-in-the-press-kit-video-section-to-use-the-url-https-www-youtube-com-watch-v-c-q0-2kifhs-the-iframe-src-must-include-query-parameters-playsinline-1-and-fs-0-the-video-thumbnail-with-play-button-overlay-should-remain-clicking-it-reveals-the-inline-iframe-and-begins-playback-with-this-exact-updated-url",
+      "featureTitle": "Update the YouTube embed in the Press Kit video section to use the URL https://www.youtube.com/watch?v=C-Q0-2kiFhs. The iframe src must include query parameters `playsinline=1` and `fs=0`. The video thumbnail with play button overlay should remain; clicking it reveals the inline iframe and begins playback with this exact updated URL.",
+      "files": [
+        "frontend/src/pages/PressKitPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-19"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-in-the-fullscreen-screenshot-overlay-on-the-press-kit-page-clicking-directly-on-the-displayed-screenshot-image-must-close-the-fullscreen-overlay-and-return-the-user-to-the-normal-press-kit-view-the-click-handler-must-be-attached-to-the-image-element-itself-not-just-the-backdrop-and-it-must-stop-event-propagation-so-only-the-intended-close-action-fires",
+      "featureTitle": "In the fullscreen screenshot overlay on the Press Kit page, clicking directly on the displayed screenshot image must close the fullscreen overlay and return the user to the normal press kit view. The click handler must be attached to the image element itself (not just the backdrop), and it must stop event propagation so only the intended close action fires.",
+      "files": [
+        "frontend/src/pages/PressKitPage.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-20"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

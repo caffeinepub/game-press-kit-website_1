@@ -1,0 +1,275 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 7,
+  "summary": "Black-and-white Game Press Kit Website with Internet Identity auth, admin CMS, optional password-protected press kit, dark/light theme toggle, and persistent ICP backend storage. First authenticated principal becomes permanent admin. ShadCN-inspired monochrome editorial aesthetic.",
+  "architectural_notes": [
+    "ICP canister backend with Motoko/Rust stable variables for persistent storage",
+    "Internet Identity integration; first authenticated principal stored as permanent admin via initializeAdmin",
+    "Pure black & white aesthetic: only #000000, #FFFFFF, grayscale — no gradients, no colored accents, border-free",
+    "Fredoka One font for headers; admin-configurable body text color (light mode only, forced white in dark mode)",
+    "Routes: / (landing), /press-kit (public press kit), /admin (CMS dashboard), /admin/settings (configuration)",
+    "Screenshots gallery: fullscreen on click, scroll disabled, click to exit",
+    "Instagram social button renders only when a valid link exists; uses generated/instagram-icon-transparent.dim_64x64.png",
+    "Background_web.jpg used as background; inverted via CSS filter in dark mode along with logos"
+  ],
+  "known_issues": [
+    "YouTube video URL not updating to https://www.youtube.com/watch?v=C-Q0-2kiFhs despite prior build",
+    "Fullscreen screenshot close-on-image-click not working as expected",
+    "/admin login returns 'access denied' — admin principal needs reset"
+  ],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-build-a-global-react-app-shell-with-react-router-providing-four-routes-landing-press-kit-press-kit-admin-cms-dashboard-admin-settings-settings-include-a-persistent-header-on-all-pages-with-the-game-logo-gamelogo-png-on-the-left-a-dark-light-theme-toggle-on-the-right-and-a-sign-in-button-when-logged-out-when-the-authenticated-user-is-the-admin-replace-sign-in-with-an-edit-toggle-button-that-enables-cms-editing-mode-site-wide-use-fredoka-one-font-for-all-headings-loaded-via-google-fonts",
+      "title": "Build a global React app shell with React Router providing four routes: / (Landing), /press-kit (Press Kit), /admin (CMS Dashboard), /admin/settings (Settings). Include a persistent header on all pages with: the game logo (gamelogo.png) on the left, a dark/light theme toggle on the right, and a 'Sign In' button when logged out. When the authenticated user is the admin, replace 'Sign In' with an 'Edit' toggle button that enables CMS editing mode site-wide. Use Fredoka One font for all headings loaded via Google Fonts.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-global-dark-light-theme-system-light-mode-background-uses-background-web-jpg-at-normal-rendering-admin-selected-body-text-color-applied-to-body-text-black-headings-dark-mode-background-web-jpg-rendered-with-css-filter-invert-1-all-text-forced-white-gamelogo-png-and-kaboom-2025-png-rendered-with-invert-1-filter-theme-preference-persists-in-localstorage-across-sessions-strictly-no-colors-outside-000000-ffffff-and-grayscale-tones-no-gradients-no-colored-accents",
+      "title": "Implement a global dark/light theme system. Light mode: background uses background_web.jpg at normal rendering, admin-selected body text color applied to body text, black headings. Dark mode: background_web.jpg rendered with CSS filter invert(1), all text forced white, gamelogo.png and kaboom-2025.png rendered with invert(1) filter. Theme preference persists in localStorage across sessions. Strictly no colors outside #000000, #FFFFFF, and grayscale tones — no gradients, no colored accents.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-landing-page-centered-editorial-layout-containing-gamelogo-png-displayed-large-and-centered-a-short-editable-game-description-paragraph-a-newsletter-placeholder-component-email-input-subscribe-button-non-functional-modular-for-future-integration-and-a-view-press-kit-cta-button-that-navigates-to-press-kit-apply-the-global-monochrome-editorial-style-with-large-fredoka-one-heading-and-minimal-vertical-spacing",
+      "title": "Build the Landing page (/). Centered editorial layout containing: gamelogo.png displayed large and centered, a short editable game description paragraph, a newsletter placeholder component (email input + Subscribe button, non-functional, modular for future integration), and a 'View Press Kit' CTA button that navigates to /press-kit. Apply the global monochrome editorial style with large Fredoka One heading and minimal vertical spacing.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-press-kit-page-press-kit-with-all-content-dynamically-fetched-from-backend-sections-in-order-1-hero-large-game-title-fredoka-one-and-tagline-fetched-from-backend-2-video-video-thumbnail-png-with-centered-play-button-overlay-that-opens-the-youtube-embed-https-youtu-be-5in-hiash08-in-a-modal-or-inline-iframe-on-click-3-about-the-game-editable-text-from-backend-4-features-editable-list-of-up-to-4-items-from-backend-5-game-details-genre-platforms-release-date-from-backend-displayed-as-a-clean-table-grid-6-media-section-divider-labeled-screenshots-download-button-labeled-download-all-screenshots-as-zip-6-6mb-linking-to-assets-pokeanose-mediaimages-zip-7-screenshots-gallery-screen01-png-through-screen06-png-in-a-responsive-grid-click-any-to-open-fullscreen-overlay-ui-hidden-scroll-disabled-click-again-to-exit-8-social-media-instagram-button-visible-only-when-instagramlink-is-non-empty-left-aligned-opens-in-new-tab-uses-generated-instagram-icon-asset-9-developer-section-website-link-from-backend-10-press-support-press-email-from-backend-as-mailto-link-11-footer-kaboom-2025-png-displayed-large-no-label-header-above-it-inverted-in-dark-mode",
+      "title": "Build the Press Kit page (/press-kit) with all content dynamically fetched from backend. Sections in order: (1) Hero — large game title (Fredoka One) and tagline fetched from backend; (2) Video — video_thumbnail.png with centered play button overlay that opens the YouTube embed https://youtu.be/5in-hIASH08 in a modal or inline iframe on click; (3) About the Game — editable text from backend; (4) Features — editable list of up to 4 items from backend; (5) Game Details — Genre, Platforms, Release Date from backend displayed as a clean table/grid; (6) Media — section divider labeled 'Screenshots', download button labeled 'Download all Screenshots as ZIP (6.6MB)' linking to /assets/PokeANose_MediaImages.zip; (7) Screenshots Gallery — screen01.png through screen06.png in a responsive grid, click any to open fullscreen overlay (UI hidden, scroll disabled, click again to exit); (8) Social Media — Instagram button visible only when instagramLink is non-empty, left-aligned, opens in new tab, uses generated instagram icon asset; (9) Developer Section — website link from backend; (10) Press & Support — press email from backend as mailto link; (11) Footer — kaboom-2025.png displayed large, no label/header above it, inverted in dark mode.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-optional-password-protection-for-the-press-kit-page-on-load-of-press-kit-query-the-backend-for-passwordenabled-status-if-enabled-and-the-visitor-has-not-yet-verified-this-session-show-only-the-background-and-a-centered-password-modal-no-press-kit-content-visible-modal-is-theme-aware-white-background-with-dark-text-in-light-mode-dark-background-with-white-text-and-inputs-in-dark-mode-smooth-css-transitions-when-theme-toggles-on-form-submit-call-verifypassword-backend-function-if-it-returns-true-hide-modal-and-render-press-kit-content-if-false-show-inline-error-session-verification-state-stored-in-react-state-not-persisted",
+      "title": "Implement optional password protection for the Press Kit page. On load of /press-kit, query the backend for passwordEnabled status. If enabled and the visitor has not yet verified this session: show only the background and a centered password modal (no press kit content visible). Modal is theme-aware: white background with dark text in light mode; dark background with white text and inputs in dark mode. Smooth CSS transitions when theme toggles. On form submit, call verifyPassword() backend function; if it returns true, hide modal and render press kit content. If false, show inline error. Session verification state stored in React state (not persisted).",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-inline-cms-editing-on-the-press-kit-page-when-admin-is-logged-in-and-editing-mode-is-active-edit-toggle-enabled-all-editable-text-sections-render-with-an-inline-edit-affordance-click-to-edit-or-visible-text-input-on-blur-or-confirm-call-the-corresponding-backend-update-function-immediately-show-a-brief-save-confirmation-editable-fields-game-title-tagline-about-text-features-list-up-to-4-items-add-remove-genre-platforms-release-date-instagram-link-developer-link-press-email",
+      "title": "Implement inline CMS editing on the Press Kit page. When admin is logged in and editing mode is active (Edit toggle enabled), all editable text sections render with an inline edit affordance (click-to-edit or visible text input). On blur or confirm, call the corresponding backend update function immediately. Show a brief save confirmation. Editable fields: game title, tagline, about text, features list (up to 4 items add/remove), genre, platforms, release date, Instagram link, developer link, press email.",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-admin-cms-dashboard-admin-accessible-only-to-authenticated-admin-redirect-non-admin-users-to-with-an-error-message-access-denied-layout-fixed-left-sidebar-with-navigation-links-content-media-social-settings-main-content-editing-area-on-the-right-the-dashboard-provides-form-based-editors-for-all-cms-fields-about-text-textarea-features-list-add-edit-remove-up-to-4-game-details-genre-platforms-release-date-instagram-link-developer-website-link-press-email-each-field-has-a-save-button-that-calls-the-corresponding-backend-update-function-and-shows-success-error-feedback",
+      "title": "Build the Admin CMS Dashboard (/admin), accessible only to authenticated admin. Redirect non-admin users to / with an error message 'Access denied'. Layout: fixed left sidebar with navigation links (Content, Media, Social, Settings), main content editing area on the right. The dashboard provides form-based editors for all CMS fields: about text textarea, features list (add/edit/remove up to 4), game details (genre, platforms, release date), Instagram link, developer website link, press email. Each field has a Save button that calls the corresponding backend update function and shows success/error feedback.",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-settings-page-admin-settings-accessible-only-to-admin-contains-two-sections-1-presskit-access-toggle-between-public-and-password-protected-modes-password-input-field-to-set-a-new-password-a-regenerate-password-action-and-a-disable-protection-button-calls-enablepasswordprotection-or-disablepasswordprotection-on-the-backend-accordingly-2-theme-settings-a-body-text-color-picker-grayscale-swatches-or-hex-input-that-calls-updatebodytextcolor-and-applies-only-in-light-mode",
+      "title": "Build the Settings page (/admin/settings), accessible only to admin. Contains two sections: (1) Presskit Access — toggle between Public and Password Protected modes, password input field to set a new password, a 'Regenerate Password' action, and a 'Disable Protection' button; calls enablePasswordProtection() or disablePasswordProtection() on the backend accordingly. (2) Theme Settings — a body text color picker (grayscale swatches or hex input) that calls updateBodyTextColor() and applies only in light mode.",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-apply-a-strict-editorial-monochrome-visual-theme-across-the-entire-site-use-only-000000-ffffff-and-grayscale-tones-no-gradients-no-colored-accents-no-visible-borders-border-free-ui-typography-hierarchy-fredoka-one-for-all-headings-h1-h3-system-sans-serif-for-body-large-heading-sizes-tight-minimalist-spacing-with-reduced-vertical-gaps-smooth-css-transitions-on-hover-states-and-theme-switches-shadcn-inspired-component-style-clean-inputs-ghost-buttons-minimal-cards-the-overall-aesthetic-should-feel-like-an-indie-studio-press-page-combined-with-an-editorial-magazine-layout",
+      "title": "Apply a strict editorial monochrome visual theme across the entire site. Use only #000000, #FFFFFF, and grayscale tones. No gradients, no colored accents, no visible borders (border-free UI). Typography hierarchy: Fredoka One for all headings (h1–h3), system sans-serif for body. Large heading sizes, tight minimalist spacing with reduced vertical gaps. Smooth CSS transitions on hover states and theme switches. ShadCN-inspired component style: clean inputs, ghost buttons, minimal cards. The overall aesthetic should feel like an indie studio press page combined with an editorial magazine layout.",
+      "reqIds": [
+        "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-place-all-uploaded-static-assets-in-frontend-public-assets-gamelogo-png-background-web-jpg-kaboom-2025-png-video-thumbnail-png-screen01-png-screen02-png-screen03-png-screen04-png-screen05-png-screen06-png-place-the-generated-instagram-icon-at-frontend-public-assets-generated-instagram-icon-transparent-dim-64x64-png-reference-all-assets-via-relative-public-paths-the-screenshots-zip-file-pokeanose-mediaimages-zip-should-be-referenced-as-a-download-link-at-assets-pokeanose-mediaimages-zip",
+      "title": "Place all uploaded static assets in frontend/public/assets/: gamelogo.png, background_web.jpg, kaboom-2025.png, video_thumbnail.png, screen01.png, screen02.png, screen03.png, screen04.png, screen05.png, screen06.png. Place the generated Instagram icon at frontend/public/assets/generated/instagram-icon-transparent.dim_64x64.png. Reference all assets via relative public paths. The screenshots ZIP file PokeANose_MediaImages.zip should be referenced as a download link at /assets/PokeANose_MediaImages.zip.",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-display-the-game-logo-gamelogo-png-on-the-landing-page-at-its-natural-original-image-dimensions-do-not-constrain-it-with-fixed-width-or-height-classes-that-shrink-the-image-apply-responsive-sizing-so-it-scales-down-gracefully-on-small-screens-e-g-max-w-full-w-auto-without-ever-upscaling-beyond-its-natural-pixel-size",
+      "title": "Display the game logo (gamelogo.png) on the Landing page at its natural/original image dimensions. Do not constrain it with fixed width or height classes that shrink the image. Apply responsive sizing so it scales down gracefully on small screens (e.g., max-w-full, w-auto) without ever upscaling beyond its natural pixel size.",
+      "reqIds": [
+        "REQ-15"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-youtube-embed-in-the-press-kit-video-section-to-use-the-url-https-www-youtube-com-watch-v-c-q0-2kifhs-the-iframe-src-must-include-query-parameters-playsinline-1-and-fs-0-the-video-thumbnail-with-play-button-overlay-should-remain-clicking-it-reveals-the-inline-iframe-and-begins-playback-with-this-exact-updated-url",
+      "title": "Update the YouTube embed in the Press Kit video section to use the URL https://www.youtube.com/watch?v=C-Q0-2kiFhs. The iframe src must include query parameters `playsinline=1` and `fs=0`. The video thumbnail with play button overlay should remain; clicking it reveals the inline iframe and begins playback with this exact updated URL.",
+      "reqIds": [
+        "REQ-19"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-the-fullscreen-screenshot-overlay-on-the-press-kit-page-clicking-directly-on-the-displayed-screenshot-image-must-close-the-fullscreen-overlay-and-return-the-user-to-the-normal-press-kit-view-the-click-handler-must-be-attached-to-the-image-element-itself-not-just-the-backdrop-and-it-must-stop-event-propagation-so-only-the-intended-close-action-fires",
+      "title": "In the fullscreen screenshot overlay on the Press Kit page, clicking directly on the displayed screenshot image must close the fullscreen overlay and return the user to the normal press kit view. The click handler must be attached to the image element itself (not just the backdrop), and it must stop event propagation so only the intended close action fires.",
+      "reqIds": [
+        "REQ-20"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Internet Identity authentication with first-principal-as-admin system",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Admin CMS dashboard (/admin) with left sidebar, instant save, editable all press kit sections",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Optional password-protected press kit access with SHA-256 hashing and password modal",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Dark/Light theme toggle with persistent theme, inverted assets in dark mode, admin-configurable body text color",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Persistent backend stable variables for all CMS content and settings across redeployments",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Landing page (/) with game logo, description, newsletter placeholder, and View Press Kit CTA",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-7",
+      "summary": "Press Kit page (/press-kit) with hero, video embed, about, features, game details, screenshots gallery, social links, developer section, press contact, and footer",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-8",
+      "summary": "Settings page (/admin/settings) with presskit access toggle, password management, and theme settings",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Implement a Motoko backend actor with stable variables persisting: adminPrincipal (opt Principal), passwordEnabled (Bool), passwordHash (Text), bodyTextColor (Text), aboutText (Text), features (array of up to 4 Text), gameDetails (record: genre Text, platforms Text, releaseDate Text), instagramLink (Text), developerLink (Text), pressEmail (Text), gameTitle (Text), tagline (Text). Expose query functions to read all fields and update functions guarded by admin-only checks.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Implement initializeAdmin() backend function: if no admin is set, record the calling principal as permanent admin. If an admin already exists, reject with error 'Admin already initialized'. Expose isAdmin(principal) query and getAdminStatus() query returning whether an admin has been set.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Implement enablePasswordProtection(password: Text) backend function (admin-only): SHA-256 hash the password and store the hash, set passwordEnabled = true. Implement disablePasswordProtection() (admin-only) to set passwordEnabled = false and clear the hash. Implement verifyPassword(password: Text) public query that returns Bool indicating whether the hash matches.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-12",
+      "summary": "Implement admin-only update functions for all CMS content: updateAboutText(text), updateFeatures(items: [Text]), updateGameDetails(genre, platforms, releaseDate), updateInstagramLink(url), updateDeveloperLink(url), updatePressEmail(email), updateBodyTextColor(color), updateGameTitle(title), updateTagline(tagline). All return a Result type. Expose corresponding public query getters for each field.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-13",
+      "summary": "Game logo displays at original image size (no forced resize) but remains responsive on mobile and web",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-14",
+      "summary": "Press Kit page starts with the game logo (same as landing/intro) at the top before other sections",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-15",
+      "summary": "YouTube video plays inline within the embed (no fullscreen on click); update YouTube link to https://www.youtube.com/watch?v=C-Q0-2kiFhs",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-16",
+      "summary": "Remove navigation arrows from fullscreen screenshot overlay; clicking the screenshot image closes the fullscreen gallery",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-18",
+      "summary": "Add the game logo (gamelogo.png) as the very first visual element at the top of the Press Kit page (/press-kit), displayed before the Hero section (title/tagline). Apply the same responsive sizing rules as the Landing page logo (natural size on desktop, scales down on mobile). Apply the dark-mode invert filter consistent with the rest of the site.",
+      "reqIds": [
+        "REQ-16"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-19",
+      "summary": "Update the YouTube embed in the Press Kit video section to use the URL https://www.youtube.com/watch?v=C-Q0-2kiFhs. Configure the iframe embed so the video plays inline within the page without entering fullscreen when the play button is clicked. Add the query parameters `playsinline=1` and `fs=0` (disable fullscreen button) to the embed URL. The video thumbnail with play button overlay should remain; clicking it reveals the inline iframe and begins playback.",
+      "reqIds": [
+        "REQ-17"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-20",
+      "summary": "Remove all previous/next navigation arrows from the fullscreen screenshot overlay in the Press Kit screenshots gallery. When a screenshot is displayed in fullscreen overlay mode, clicking anywhere on the screenshot image itself (or the overlay) closes the gallery and returns to the normal page view.",
+      "reqIds": [
+        "REQ-18"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-21",
+      "summary": "Reset Internet Identity / admin principal so a new first principal can become admin (fix 'access denied' on /admin login)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-24",
+      "summary": "Reset the admin principal in the Motoko backend so that the next user to authenticate via Internet Identity and call initializeAdmin() becomes the new permanent admin. Clear the stored adminPrincipal stable variable (set it to null / opt Principal null) so the admin initialization flow can be triggered fresh. Do not wipe any other CMS content (aboutText, features, gameDetails, etc.).",
+      "reqIds": [
+        "REQ-21"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "Game Press Kit Website",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

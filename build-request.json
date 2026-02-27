@@ -1,0 +1,80 @@
+{
+  "kind": "build_request",
+  "title": "Fix YouTube URL, screenshot fullscreen close, and reset admin principal",
+  "projectName": "Poke A Nose Press Kit",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-19",
+      "text": "Update the YouTube embed in the Press Kit video section to use the URL https://www.youtube.com/watch?v=C-Q0-2kiFhs. The iframe src must include query parameters `playsinline=1` and `fs=0`. The video thumbnail with play button overlay should remain; clicking it reveals the inline iframe and begins playback with this exact updated URL.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "the youtube video is not changed to https://www.youtube.com/watch?v=C-Q0-2kiFhs"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The iframe embed URL is exactly https://www.youtube.com/embed/C-Q0-2kiFhs?playsinline=1&fs=0&autoplay=1 (or equivalent with those parameters) when the play button is clicked",
+        "The old video ID (5in-hIASH08) does not appear anywhere in PressKitPage.tsx",
+        "Clicking the thumbnail play button reveals the inline iframe and starts playback",
+        "No fullscreen button is shown in the embedded player"
+      ]
+    },
+    {
+      "id": "REQ-20",
+      "text": "In the fullscreen screenshot overlay on the Press Kit page, clicking directly on the displayed screenshot image must close the fullscreen overlay and return the user to the normal press kit view. The click handler must be attached to the image element itself (not just the backdrop), and it must stop event propagation so only the intended close action fires.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "when I click on the screenshot and the screenshot is in fullscreen when I click on the image it should close the screenshot so turn off fullscreen and go back to the presskit"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Clicking the screenshot image in fullscreen overlay closes the overlay",
+        "After closing, the press kit page content is visible and scroll is re-enabled",
+        "No previous/next navigation arrows are present in the overlay",
+        "Clicking the backdrop (outside the image) also closes the overlay"
+      ]
+    },
+    {
+      "id": "REQ-21",
+      "text": "Reset the admin principal in the Motoko backend so that the next user to authenticate via Internet Identity and call initializeAdmin() becomes the new permanent admin. Clear the stored adminPrincipal stable variable (set it to null / opt Principal null) so the admin initialization flow can be triggered fresh. Do not wipe any other CMS content (aboutText, features, gameDetails, etc.).",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-1"
+        ],
+        "quotes": [
+          "login /admin doesn't work I get access denied. Reset the internet idenity please"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The adminPrincipal stable variable is reset to null in the deployed backend",
+        "Calling initializeAdmin() from a newly authenticated Internet Identity principal succeeds and sets that principal as admin",
+        "After re-initializing, navigating to /admin as the new admin no longer shows 'Access denied'",
+        "All other CMS stable variables (aboutText, features, gameTitle, etc.) retain their existing values"
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not modify any files under frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, or frontend/src/components/ui",
+    "Do not reset or wipe any CMS content stable variables when resetting the admin principal",
+    "The YouTube URL must be exactly https://www.youtube.com/watch?v=C-Q0-2kiFhs — do not use any other video ID"
+  ],
+  "nonGoals": [
+    "Changing any other press kit page sections or layout",
+    "Modifying the password protection or theme settings logic",
+    "Adding new CMS fields or backend functions",
+    "Changing the landing page"
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

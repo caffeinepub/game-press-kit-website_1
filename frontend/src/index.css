@@ -1,0 +1,190 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0px;
+    --background: 1 0 0;
+    --foreground: 0.09 0 0;
+    --card: 0.98 0 0;
+    --card-foreground: 0.09 0 0;
+    --popover: 1 0 0;
+    --popover-foreground: 0.09 0 0;
+    --primary: 0.09 0 0;
+    --primary-foreground: 1 0 0;
+    --secondary: 0.94 0 0;
+    --secondary-foreground: 0.09 0 0;
+    --muted: 0.94 0 0;
+    --muted-foreground: 0.45 0 0;
+    --accent: 0.88 0 0;
+    --accent-foreground: 0.09 0 0;
+    --destructive: 0.45 0 0;
+    --destructive-foreground: 1 0 0;
+    --border: 0.85 0 0;
+    --input: 0.85 0 0;
+    --ring: 0.09 0 0;
+    --sidebar: 0.97 0 0;
+    --sidebar-foreground: 0.09 0 0;
+    --sidebar-primary: 0.09 0 0;
+    --sidebar-primary-foreground: 1 0 0;
+    --sidebar-accent: 0.92 0 0;
+    --sidebar-accent-foreground: 0.09 0 0;
+    --sidebar-border: 0.88 0 0;
+    --sidebar-ring: 0.09 0 0;
+    --body-text-color: #1a1a1a;
+  }
+
+  .dark {
+    --background: 0.08 0 0;
+    --foreground: 0.97 0 0;
+    --card: 0.12 0 0;
+    --card-foreground: 0.97 0 0;
+    --popover: 0.12 0 0;
+    --popover-foreground: 0.97 0 0;
+    --primary: 0.97 0 0;
+    --primary-foreground: 0.08 0 0;
+    --secondary: 0.18 0 0;
+    --secondary-foreground: 0.97 0 0;
+    --muted: 0.18 0 0;
+    --muted-foreground: 0.6 0 0;
+    --accent: 0.22 0 0;
+    --accent-foreground: 0.97 0 0;
+    --destructive: 0.6 0 0;
+    --destructive-foreground: 0.08 0 0;
+    --border: 0.97 0 0 / 12%;
+    --input: 0.97 0 0 / 15%;
+    --ring: 0.97 0 0;
+    --sidebar: 0.1 0 0;
+    --sidebar-foreground: 0.97 0 0;
+    --sidebar-primary: 0.97 0 0;
+    --sidebar-primary-foreground: 0.08 0 0;
+    --sidebar-accent: 0.18 0 0;
+    --sidebar-accent-foreground: 0.97 0 0;
+    --sidebar-border: 0.97 0 0 / 12%;
+    --sidebar-ring: 0.97 0 0;
+  }
+
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Fredoka One', cursive;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+
+  /* Body text color in light mode */
+  body:not(.dark) p,
+  body:not(.dark) li,
+  body:not(.dark) span:not(.preserve-color),
+  body:not(.dark) td,
+  body:not(.dark) th,
+  body:not(.dark) label {
+    color: var(--body-text-color, #1a1a1a);
+  }
+
+  /* Dark mode forces white text */
+  .dark p,
+  .dark li,
+  .dark span:not(.preserve-color),
+  .dark td,
+  .dark th,
+  .dark label {
+    color: #ffffff !important;
+  }
+
+  /* Background image */
+  .site-bg {
+    background-image: url('/assets/background_web.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    transition: filter 0.3s ease;
+  }
+
+  .dark .site-bg {
+    filter: invert(1);
+  }
+
+  /* Logo inversion in dark mode */
+  .dark .invert-dark {
+    filter: invert(1);
+  }
+
+  /* Smooth transitions */
+  * {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-duration: 0.2s;
+    transition-timing-function: ease;
+  }
+
+  /* Override for transforms/opacity to not transition */
+  .no-transition {
+    transition: none !important;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(var(--muted-foreground) / 0.3);
+  }
+
+  /* Input styles */
+  input, textarea, select {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  /* Editorial section divider */
+  .section-divider {
+    width: 100%;
+    height: 1px;
+    background: oklch(var(--foreground) / 0.12);
+    margin: 2rem 0;
+  }
+}
+
+@layer utilities {
+  .font-heading {
+    font-family: 'Fredoka One', cursive;
+  }
+
+  .text-editorial-xl {
+    font-size: clamp(2.5rem, 8vw, 6rem);
+    line-height: 1;
+    font-family: 'Fredoka One', cursive;
+  }
+
+  .text-editorial-lg {
+    font-size: clamp(1.8rem, 5vw, 3.5rem);
+    line-height: 1.05;
+    font-family: 'Fredoka One', cursive;
+  }
+
+  .text-editorial-md {
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    line-height: 1.1;
+    font-family: 'Fredoka One', cursive;
+  }
+}
