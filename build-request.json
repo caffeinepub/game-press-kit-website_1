@@ -1,60 +1,78 @@
 {
   "kind": "build_request",
-  "title": "Screenshot 1px border + reliable Internet Identity login in header",
-  "projectName": "Poke A Nose Press Kit",
+  "title": "Fix Internet Identity cross-browser compatibility and admin access rejection",
+  "projectName": "PokeANose Press Kit",
   "priority": "high",
   "requirements": [
     {
-      "id": "REQ-37",
-      "text": "In the Press Kit screenshots gallery (frontend/src/pages/PressKitPage.tsx), add a 1-pixel solid black border to every screenshot image in the responsive grid. The border must also apply to the image displayed inside the fullscreen overlay. In dark mode, the border should be 1px solid white (to remain visible against the dark background). The border must be applied directly to the <img> elements via Tailwind classes or inline styles.",
+      "id": "REQ-39",
+      "text": "Fix the Internet Identity authentication flow in frontend/src/hooks/useInternetIdentity.ts (read-only) and any surrounding integration code so that login works correctly across all major browsers (Chrome, Safari, Edge, Firefox). Audit the AuthClient configuration for known cross-browser issues: ensure the identity provider URL is correctly set for production (using the IC mainnet II canister URL), that popup/redirect handling is compatible with browsers that block third-party popups, and that the delegationIdentity and storage options are set in a browser-agnostic way. If the hook itself cannot be modified (immutable path), create a wrapper or patch the integration layer in useActor.ts or App.tsx to resolve the compatibility gap.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-user-1"
         ],
         "quotes": [
-          "on the screenshots images make 1 pixel black border around them"
+          "make sure it works for all browsers currently it is only working on firefox"
         ]
       },
       "acceptanceCriteria": [
-        "Each screenshot thumbnail in the grid has a visible 1px solid black border in light mode",
-        "Each screenshot thumbnail in the grid has a visible 1px solid white border in dark mode",
-        "The fullscreen overlay image also has the 1px border applied",
-        "No other UI elements gain unexpected borders"
+        "Internet Identity login popup opens and completes successfully in Chrome, Safari, Edge, and Firefox",
+        "After completing II authentication in any browser, the user is recognized as authenticated (isAuthenticated is true)",
+        "The Sign In button disappears after successful login in all browsers",
+        "No browser-specific errors or silent failures during the authentication flow"
       ]
     },
     {
-      "id": "REQ-38",
-      "text": "Rewrite frontend/src/components/Header.tsx from scratch to definitively fix the Internet Identity login button. The component must: (1) import useInternetIdentity from its canonical path 'frontend/src/hooks/useInternetIdentity'; (2) read isAuthenticated (or equivalent identity/principal state) from the hook synchronously at render time — do not gate the button on any async loading flag that delays its appearance; (3) render a 'Sign In' button in the top-right corner (alongside the dark/light theme toggle) whenever isAuthenticated is false; (4) call the hook's login() function on button click to trigger the Internet Identity authentication popup; (5) hide the 'Sign In' button completely once isAuthenticated is true; (6) style the button in the monochrome editorial style — ghost or outlined, black/white/grayscale only, no color accents. The button must be visible on first page load when the user is not logged in, with no delay or flicker caused by initialization guards.",
-      "target": "frontend",
+      "id": "REQ-40",
+      "text": "Reset the adminPrincipal stable variable in the Motoko backend (backend/main.mo) to null by ensuring the resetAdmin() public update function correctly sets adminPrincipal to null with no access guard. Verify that after reset, calling initializeAdmin() from a freshly authenticated principal correctly claims the admin slot. Audit the option type comparison logic so that a null adminPrincipal is unambiguously recognized as 'no admin set' and a new principal can claim it without being rejected.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-user-1"
         ],
         "quotes": [
-          "add a working login / sign in to internet computer to verify admin because it is still not there, already tried two times"
+          "reset again the token",
+          "also rejected again after signin in"
         ]
       },
       "acceptanceCriteria": [
-        "The 'Sign In' button is visible in the top-right corner on first page load when the user has no active Internet Identity session",
-        "Clicking 'Sign In' opens the Internet Identity authentication popup",
-        "After successful login, the 'Sign In' button disappears from the header",
-        "The button is styled monochromatically (no color accents, black/white/grayscale only)",
-        "The button appears on all four routes: /, /press-kit, /admin, /admin/settings",
-        "No initialization loading guard delays or prevents the button from rendering when unauthenticated"
+        "resetAdmin() sets adminPrincipal to null with no access restrictions",
+        "After resetAdmin() is called, getAdminStatus() returns false",
+        "After resetAdmin(), the next authenticated user who calls initializeAdmin() successfully becomes admin",
+        "initializeAdmin() does not reject a valid new principal when adminPrincipal is null"
+      ]
+    },
+    {
+      "id": "REQ-41",
+      "text": "Fix the AdminDashboard page (frontend/src/pages/AdminDashboard.tsx) so that after a successful Internet Identity login, the admin status check and initializeAdmin() auto-claim flow work correctly and the dashboard renders for the newly authenticated admin — without showing 'Access Denied'. Ensure the actor used for getAdminStatus() and initializeAdmin() calls is updated to use the authenticated identity immediately after login completes, so the backend receives the correct authenticated principal and does not reject it.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-user-1"
+        ],
+        "quotes": [
+          "rejected again after signin in"
+        ]
+      },
+      "acceptanceCriteria": [
+        "After Internet Identity login completes on the AdminDashboard, the actor is re-instantiated with the authenticated identity before calling getAdminStatus()",
+        "If no admin is set, initializeAdmin() is called with the authenticated identity and the calling principal is stored as admin",
+        "The dashboard renders correctly after the admin claim without showing 'Access Denied'",
+        "If an admin is already set and the logged-in principal matches, the dashboard renders without requiring a reset"
       ]
     }
   ],
   "constraints": [
-    "Do not modify any files listed under frontend.immutablePaths (useInternetIdentity.ts, useActor.ts, main.tsx, components/ui)",
-    "Monochrome editorial style must be preserved — no color accents outside #000000, #FFFFFF, and grayscale tones",
-    "Do not alter any backend CMS stable variables or logic"
+    "Do not modify files listed in frontend.immutablePaths: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx, frontend/src/components/ui",
+    "Do not clear or modify any CMS stable variables (aboutText, features, gameDetails, instagramLink, developerLink, pressEmail, bodyTextColor, gameTitle, tagline, passwordEnabled, passwordHash) when resetting the admin principal",
+    "All UI changes must remain in the monochrome editorial style (black/white/grayscale only, no color accents)"
   ],
   "nonGoals": [
-    "Adding new authentication providers beyond Internet Identity",
-    "Changing the admin initialization or reset logic",
-    "Modifying any other page components beyond Header.tsx and PressKitPage.tsx",
-    "Adding borders to any UI elements other than screenshot images"
+    "Adding new CMS fields or press kit content sections",
+    "Changing the visual design or layout of any page",
+    "Modifying the screenshot gallery, video embed, or other press kit features",
+    "Supporting non-Internet-Identity authentication methods"
   ],
   "imageRequirements": {
     "required": [],

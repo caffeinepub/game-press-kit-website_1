@@ -1,88 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import { UpdateContentResult } from '../backend';
+import type { GameDetails, AdminResult, UpdateContentResult } from '../backend';
 
-// ─── Read queries ────────────────────────────────────────────────────────────
-
-export function useGetAdminStatus() {
-  const { actor, isFetching } = useActor();
-  return useQuery<boolean>({
-    queryKey: ['adminStatus'],
-    queryFn: async () => {
-      if (!actor) return false;
-      return actor.getAdminStatus();
-    },
-    enabled: !!actor && !isFetching,
-  });
-}
-
-export function useIsCallerAdmin() {
-  const { actor, isFetching } = useActor();
-  return useQuery<boolean>({
-    queryKey: ['isCallerAdmin'],
-    queryFn: async () => {
-      if (!actor) return false;
-      return actor.isCallerAdmin();
-    },
-    enabled: !!actor && !isFetching,
-  });
-}
-
-export function useGetCallerUserProfile() {
-  const { actor, isFetching: actorFetching } = useActor();
-  const query = useQuery({
-    queryKey: ['currentUserProfile'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      return actor.getCallerUserProfile();
-    },
-    enabled: !!actor && !actorFetching,
-    retry: false,
-  });
-  return {
-    ...query,
-    isLoading: actorFetching || query.isLoading,
-    isFetched: !!actor && query.isFetched,
-  };
-}
-
-export function useSaveCallerUserProfile() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (name: string) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.saveCallerUserProfile({ name });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-    },
-  });
-}
-
-export function useGetGameTitle() {
-  const { actor, isFetching } = useActor();
-  return useQuery<string>({
-    queryKey: ['gameTitle'],
-    queryFn: async () => {
-      if (!actor) return 'Poke A Nose';
-      return actor.getGameTitle();
-    },
-    enabled: !!actor && !isFetching,
-  });
-}
-
-export function useGetTagline() {
-  const { actor, isFetching } = useActor();
-  return useQuery<string>({
-    queryKey: ['tagline'],
-    queryFn: async () => {
-      if (!actor) return '';
-      return actor.getTagline();
-    },
-    enabled: !!actor && !isFetching,
-  });
-}
+// ─── Content Queries ───────────────────────────────────────────────────────────
 
 export function useGetAboutText() {
   const { actor, isFetching } = useActor();
@@ -110,11 +30,35 @@ export function useGetFeatures() {
 
 export function useGetGameDetails() {
   const { actor, isFetching } = useActor();
-  return useQuery({
+  return useQuery<GameDetails>({
     queryKey: ['gameDetails'],
     queryFn: async () => {
       if (!actor) return { genre: '', platforms: '', releaseDate: '' };
       return actor.getGameDetails();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useGetGameTitle() {
+  const { actor, isFetching } = useActor();
+  return useQuery<string>({
+    queryKey: ['gameTitle'],
+    queryFn: async () => {
+      if (!actor) return '';
+      return actor.getGameTitle();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useGetTagline() {
+  const { actor, isFetching } = useActor();
+  return useQuery<string>({
+    queryKey: ['tagline'],
+    queryFn: async () => {
+      if (!actor) return '';
+      return actor.getTagline();
     },
     enabled: !!actor && !isFetching,
   });
@@ -161,8 +105,66 @@ export function useGetBodyTextColor() {
   return useQuery<string>({
     queryKey: ['bodyTextColor'],
     queryFn: async () => {
-      if (!actor) return '#1a1a1a';
+      if (!actor) return '#000000';
       return actor.getBodyTextColor();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+// ─── Admin Status Queries ──────────────────────────────────────────────────────
+
+export function useGetAdminStatus() {
+  const { actor, isFetching } = useActor();
+  return useQuery<boolean>({
+    queryKey: ['adminStatus'],
+    queryFn: async () => {
+      if (!actor) return false;
+      return actor.getAdminStatus();
+    },
+    enabled: !!actor && !isFetching,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+  });
+}
+
+export function useIsCallerAdmin() {
+  const { actor, isFetching } = useActor();
+  return useQuery<boolean>({
+    queryKey: ['isCallerAdmin'],
+    queryFn: async () => {
+      if (!actor) return false;
+      try {
+        return await actor.isCallerAdmin();
+      } catch {
+        return false;
+      }
+    },
+    enabled: !!actor && !isFetching,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+  });
+}
+
+// ─── Password Queries ──────────────────────────────────────────────────────────
+
+export function useCheckPasswordEnabled() {
+  const { actor, isFetching } = useActor();
+  return useQuery<boolean>({
+    queryKey: ['passwordEnabled'],
+    queryFn: async () => {
+      if (!actor) return false;
+      // verifyPassword with empty string: if it returns true, no password is set
+      // We use a dedicated check: verifyPassword('') returns true only when protection is disabled
+      // Actually we check by calling verifyPassword with a sentinel — but the backend
+      // doesn't expose a direct "isPasswordEnabled" query. We use verifyPassword('') as a proxy:
+      // if it returns true → no password set (protection disabled)
+      // if it returns false → protection is enabled
+      const result = await actor.verifyPassword('__check_enabled__');
+      // If verifyPassword returns true for a garbage string, protection is disabled
+      return !result;
     },
     enabled: !!actor && !isFetching,
   });
@@ -170,7 +172,7 @@ export function useGetBodyTextColor() {
 
 export function useVerifyPassword() {
   const { actor } = useActor();
-  return useMutation({
+  return useMutation<boolean, Error, string>({
     mutationFn: async (password: string) => {
       if (!actor) throw new Error('Actor not available');
       return actor.verifyPassword(password);
@@ -178,37 +180,30 @@ export function useVerifyPassword() {
   });
 }
 
-// ─── Initialize Admin mutation ────────────────────────────────────────────────
+// ─── Admin Mutations ───────────────────────────────────────────────────────────
 
 export function useInitializeAdmin() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async () => {
+  return useMutation<AdminResult, Error, { adminToken: string; userProvidedToken: string }>({
+    mutationFn: async ({ adminToken, userProvidedToken }) => {
       if (!actor) throw new Error('Actor not available');
-      const result = await actor.initializeAdmin('', '');
-      if (result.__kind__ === 'error') {
-        throw new Error(result.error);
-      }
-      return result;
+      return actor.initializeAdmin(adminToken, userProvidedToken);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminStatus'] });
       queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
     },
   });
 }
-
-// ─── Reset Admin mutation ─────────────────────────────────────────────────────
 
 export function useResetAdmin() {
-  const { actor } = useActor();
   const queryClient = useQueryClient();
-  return useMutation({
+  const { actor } = useActor();
+  return useMutation<void, Error, void>({
     mutationFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      await actor.resetAdmin();
+      return actor.resetAdmin();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminStatus'] });
@@ -217,52 +212,43 @@ export function useResetAdmin() {
   });
 }
 
-// ─── Update mutations ─────────────────────────────────────────────────────────
-
-function useUpdateMutation<T>(
-  mutationFn: (actor: NonNullable<ReturnType<typeof useActor>['actor']>, arg: T) => Promise<UpdateContentResult>,
-  invalidateKeys: string[][]
-) {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (arg: T) => {
-      if (!actor) throw new Error('Actor not available');
-      const result = await mutationFn(actor, arg);
-      if (result === UpdateContentResult.notAdmin) throw new Error('Not admin');
-      return result;
-    },
-    onSuccess: () => {
-      invalidateKeys.forEach(key => queryClient.invalidateQueries({ queryKey: key }));
-    },
-  });
-}
-
-export function useUpdateGameTitle() {
-  return useUpdateMutation<string>((actor, title) => actor.updateGameTitle(title), [['gameTitle']]);
-}
-
-export function useUpdateTagline() {
-  return useUpdateMutation<string>((actor, tagline) => actor.updateTagline(tagline), [['tagline']]);
-}
+// ─── Content Mutations ─────────────────────────────────────────────────────────
 
 export function useUpdateAboutText() {
-  return useUpdateMutation<string>((actor, text) => actor.updateAboutText(text), [['aboutText']]);
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation<UpdateContentResult, Error, string>({
+    mutationFn: async (text: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateAboutText(text);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['aboutText'] });
+    },
+  });
 }
 
 export function useUpdateFeatures() {
-  return useUpdateMutation<string[]>((actor, items) => actor.updateFeatures(items), [['features']]);
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation<UpdateContentResult, Error, string[]>({
+    mutationFn: async (items: string[]) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateFeatures(items);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['features'] });
+    },
+  });
 }
 
 export function useUpdateGameDetails() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ genre, platforms, releaseDate }: { genre: string; platforms: string; releaseDate: string }) => {
+  return useMutation<UpdateContentResult, Error, GameDetails>({
+    mutationFn: async ({ genre, platforms, releaseDate }: GameDetails) => {
       if (!actor) throw new Error('Actor not available');
-      const result = await actor.updateGameDetails(genre, platforms, releaseDate);
-      if (result === UpdateContentResult.notAdmin) throw new Error('Not admin');
-      return result;
+      return actor.updateGameDetails(genre, platforms, releaseDate);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['gameDetails'] });
@@ -270,34 +256,100 @@ export function useUpdateGameDetails() {
   });
 }
 
+export function useUpdateGameTitle() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation<UpdateContentResult, Error, string>({
+    mutationFn: async (title: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateGameTitle(title);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['gameTitle'] });
+    },
+  });
+}
+
+export function useUpdateTagline() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation<UpdateContentResult, Error, string>({
+    mutationFn: async (tagline: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateTagline(tagline);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tagline'] });
+    },
+  });
+}
+
 export function useUpdateInstagramLink() {
-  return useUpdateMutation<string>((actor, url) => actor.updateInstagramLink(url), [['instagramLink']]);
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation<UpdateContentResult, Error, string>({
+    mutationFn: async (url: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateInstagramLink(url);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['instagramLink'] });
+    },
+  });
 }
 
 export function useUpdateDeveloperLink() {
-  return useUpdateMutation<string>((actor, url) => actor.updateDeveloperLink(url), [['developerLink']]);
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation<UpdateContentResult, Error, string>({
+    mutationFn: async (url: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateDeveloperLink(url);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['developerLink'] });
+    },
+  });
 }
 
 export function useUpdatePressEmail() {
-  return useUpdateMutation<string>((actor, email) => actor.updatePressEmail(email), [['pressEmail']]);
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation<UpdateContentResult, Error, string>({
+    mutationFn: async (email: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updatePressEmail(email);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pressEmail'] });
+    },
+  });
 }
 
 export function useUpdateBodyTextColor() {
-  return useUpdateMutation<string>((actor, color) => actor.updateBodyTextColor(color), [['bodyTextColor']]);
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation<UpdateContentResult, Error, string>({
+    mutationFn: async (color: string) => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.updateBodyTextColor(color);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bodyTextColor'] });
+    },
+  });
 }
 
 export function useEnablePasswordProtection() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
-  return useMutation({
+  return useMutation<AdminResult, Error, string>({
     mutationFn: async (password: string) => {
       if (!actor) throw new Error('Actor not available');
-      const result = await actor.enablePasswordProtection(password);
-      if (result.__kind__ === 'error') throw new Error(result.error);
-      return result;
+      return actor.enablePasswordProtection(password);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['passwordStatus'] });
+      queryClient.invalidateQueries({ queryKey: ['passwordEnabled'] });
     },
   });
 }
@@ -305,49 +357,13 @@ export function useEnablePasswordProtection() {
 export function useDisablePasswordProtection() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
-  return useMutation({
+  return useMutation<AdminResult, Error, void>({
     mutationFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      const result = await actor.disablePasswordProtection();
-      if (result.__kind__ === 'error') throw new Error(result.error);
-      return result;
+      return actor.disablePasswordProtection();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['passwordStatus'] });
-    },
-  });
-}
-
-// We use verifyPassword as a proxy to check if password protection is enabled
-// (returns true if not enabled, false if enabled and wrong password)
-export function useCheckPasswordEnabled() {
-  const { actor, isFetching } = useActor();
-  return useQuery<boolean>({
-    queryKey: ['passwordStatus'],
-    queryFn: async () => {
-      if (!actor) return false;
-      // verifyPassword('') returns true when protection is disabled
-      const result = await actor.verifyPassword('');
-      return !result; // true = protection enabled, false = disabled
-    },
-    enabled: !!actor && !isFetching,
-  });
-}
-
-export function useRegeneratePassword() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (newPassword: string) => {
-      if (!actor) throw new Error('Actor not available');
-      // Disable then re-enable with new password
-      await actor.disablePasswordProtection();
-      const result = await actor.enablePasswordProtection(newPassword);
-      if (result.__kind__ === 'error') throw new Error(result.error);
-      return result;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['passwordStatus'] });
+      queryClient.invalidateQueries({ queryKey: ['passwordEnabled'] });
     },
   });
 }

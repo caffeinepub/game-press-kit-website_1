@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 29,
+  "projectStateVersion": 31,
   "summary": "Black-and-white Game Press Kit Website with Internet Identity auth, admin CMS, optional password-protected press kit, dark/light theme toggle, and persistent ICP backend storage. First authenticated principal becomes permanent admin. ShadCN-inspired monochrome editorial aesthetic.",
   "architectural_notes": [
     "ICP canister backend with Motoko/Rust stable variables for persistent storage",
@@ -17,7 +17,9 @@
     "Fullscreen screenshot close-on-image-click not working as expected",
     "/admin login returns 'access denied' — admin principal needs reset",
     "ICP deployment failing (proxy works but deployment does not)",
-    "Internet Identity login/sign-in button still not appearing in header after multiple build attempts (Version 12, 13)"
+    "Internet Identity login/sign-in button still not appearing in header after multiple build attempts (Version 12, 13)",
+    "Internet Identity sign-in only working in Firefox — fails in other browsers (Chrome, Safari, etc.)",
+    "Admin access still rejected after Internet Identity sign-in even after reset attempts"
   ],
   "isFixRequest": true,
   "existing_features": [
@@ -218,6 +220,22 @@
       "title": "Rewrite frontend/src/components/Header.tsx from scratch to definitively fix the Internet Identity login button. The component must: (1) import useInternetIdentity from its canonical path 'frontend/src/hooks/useInternetIdentity'; (2) read isAuthenticated (or equivalent identity/principal state) from the hook synchronously at render time — do not gate the button on any async loading flag that delays its appearance; (3) render a 'Sign In' button in the top-right corner (alongside the dark/light theme toggle) whenever isAuthenticated is false; (4) call the hook's login() function on button click to trigger the Internet Identity authentication popup; (5) hide the 'Sign In' button completely once isAuthenticated is true; (6) style the button in the monochrome editorial style — ghost or outlined, black/white/grayscale only, no color accents. The button must be visible on first page load when the user is not logged in, with no delay or flicker caused by initialization guards.",
       "reqIds": [
         "REQ-38"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-internet-identity-authentication-flow-in-frontend-src-hooks-useinternetidentity-ts-read-only-and-any-surrounding-integration-code-so-that-login-works-correctly-across-all-major-browsers-chrome-safari-edge-firefox-audit-the-authclient-configuration-for-known-cross-browser-issues-ensure-the-identity-provider-url-is-correctly-set-for-production-using-the-ic-mainnet-ii-canister-url-that-popup-redirect-handling-is-compatible-with-browsers-that-block-third-party-popups-and-that-the-delegationidentity-and-storage-options-are-set-in-a-browser-agnostic-way-if-the-hook-itself-cannot-be-modified-immutable-path-create-a-wrapper-or-patch-the-integration-layer-in-useactor-ts-or-app-tsx-to-resolve-the-compatibility-gap",
+      "title": "Fix the Internet Identity authentication flow in frontend/src/hooks/useInternetIdentity.ts (read-only) and any surrounding integration code so that login works correctly across all major browsers (Chrome, Safari, Edge, Firefox). Audit the AuthClient configuration for known cross-browser issues: ensure the identity provider URL is correctly set for production (using the IC mainnet II canister URL), that popup/redirect handling is compatible with browsers that block third-party popups, and that the delegationIdentity and storage options are set in a browser-agnostic way. If the hook itself cannot be modified (immutable path), create a wrapper or patch the integration layer in useActor.ts or App.tsx to resolve the compatibility gap.",
+      "reqIds": [
+        "REQ-39"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-admindashboard-page-frontend-src-pages-admindashboard-tsx-so-that-after-a-successful-internet-identity-login-the-admin-status-check-and-initializeadmin-auto-claim-flow-work-correctly-and-the-dashboard-renders-for-the-newly-authenticated-admin-without-showing-access-denied-ensure-the-actor-used-for-getadminstatus-and-initializeadmin-calls-is-updated-to-use-the-authenticated-identity-immediately-after-login-completes-so-the-backend-receives-the-correct-authenticated-principal-and-does-not-reject-it",
+      "title": "Fix the AdminDashboard page (frontend/src/pages/AdminDashboard.tsx) so that after a successful Internet Identity login, the admin status check and initializeAdmin() auto-claim flow work correctly and the dashboard renders for the newly authenticated admin — without showing 'Access Denied'. Ensure the actor used for getAdminStatus() and initializeAdmin() calls is updated to use the authenticated identity immediately after login completes, so the backend receives the correct authenticated principal and does not reject it.",
+      "reqIds": [
+        "REQ-41"
       ],
       "version": 1
     }
@@ -439,6 +457,26 @@
       "id": "AR-36",
       "summary": "Add a 1-pixel black border around each screenshot image in the Press Kit screenshots gallery",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-37",
+      "summary": "Fix Internet Identity login/sign-in button to work across all browsers (currently only working in Firefox). Ensure cross-browser compatibility for the II authentication flow.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-38",
+      "summary": "Reset admin principal/token again and fix the 'access denied' rejection that occurs after signing in via Internet Identity.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-40",
+      "summary": "Reset the adminPrincipal stable variable in the Motoko backend (backend/main.mo) to null by ensuring the resetAdmin() public update function correctly sets adminPrincipal to null with no access guard. Verify that after reset, calling initializeAdmin() from a freshly authenticated principal correctly claims the admin slot. Audit the option type comparison logic so that a null adminPrincipal is unambiguously recognized as 'no admin set' and a new principal can claim it without being rejected.",
+      "reqIds": [
+        "REQ-40"
+      ],
       "status": "pending"
     }
   ],

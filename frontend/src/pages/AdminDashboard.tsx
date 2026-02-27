@@ -1,32 +1,35 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from '@tanstack/react-router';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useGetAdminStatus, useIsCallerAdmin, useInitializeAdmin, useResetAdmin } from '../hooks/useQueries';
 import { useQueryClient } from '@tanstack/react-query';
+import { useActor } from '../hooks/useActor';
+import { useGetAdminStatus, useInitializeAdmin, useIsCallerAdmin, useResetAdmin } from '../hooks/useQueries';
 import AdminSidebar from '../components/AdminSidebar';
 import CMSContentEditor from '../components/CMSContentEditor';
-import { AlertCircle, Loader2, LogIn, RefreshCw } from 'lucide-react';
+import SettingsPage from './SettingsPage';
+import { Loader2, ShieldAlert, RefreshCw, LogIn } from 'lucide-react';
 
 type AdminSection = 'content' | 'media' | 'social' | 'settings';
 
 export default function AdminDashboard() {
-  const { identity, login, loginStatus, clear } = useInternetIdentity();
+  const { identity, login, loginStatus, isInitializing } = useInternetIdentity();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
-
+  const { actor, isFetching: actorFetching } = useActor();
   const isAuthenticated = !!identity;
   const isLoggingIn = loginStatus === 'logging-in';
 
-  // Step 1: Check if any admin exists
+  const [activeSection, setActiveSection] = useState<AdminSection>('content');
+  const [initAttempted, setInitAttempted] = useState(false);
+  const [initError, setInitError] = useState<string | null>(null);
+  const [loginError, setLoginError] = useState<string | null>(null);
+
   const {
     data: adminExists,
     isLoading: adminStatusLoading,
     refetch: refetchAdminStatus,
   } = useGetAdminStatus();
 
-  // Step 2: Check if the current caller is the admin (only meaningful when authenticated)
   const {
-    data: callerIsAdmin,
+    data: isCallerAdmin,
     isLoading: callerAdminLoading,
     refetch: refetchCallerAdmin,
   } = useIsCallerAdmin();
@@ -34,219 +37,238 @@ export default function AdminDashboard() {
   const initializeAdmin = useInitializeAdmin();
   const resetAdmin = useResetAdmin();
 
-  const [activeSection, setActiveSection] = useState<AdminSection>('content');
-  const hasAttemptedInit = useRef(false);
-  const [resetError, setResetError] = useState<string | null>(null);
+  // When identity changes (login), invalidate actor-dependent queries after a short delay
+  useEffect(() => {
+    if (identity) {
+      const timer = setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['adminStatus'] });
+        queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [identity, queryClient]);
 
-  // Auto-initialize: when authenticated and no admin exists yet, claim admin slot
+  // Reset init state when identity changes so a new login can re-trigger init
+  useEffect(() => {
+    setInitAttempted(false);
+    setInitError(null);
+  }, [identity]);
+
+  // Auto-initialize admin if no admin exists and user is authenticated
   useEffect(() => {
     if (
       isAuthenticated &&
-      !adminStatusLoading &&
+      !actorFetching &&
+      actor &&
       adminExists === false &&
-      !hasAttemptedInit.current &&
+      !initAttempted &&
       !initializeAdmin.isPending
     ) {
-      hasAttemptedInit.current = true;
-      initializeAdmin.mutate(undefined, {
-        onSuccess: () => {
-          refetchAdminStatus();
-          refetchCallerAdmin();
-        },
-        onError: () => {
-          // Another principal may have claimed admin between checks — refetch to get current state
-          refetchAdminStatus();
-          refetchCallerAdmin();
-        },
-      });
-    }
-  }, [isAuthenticated, adminStatusLoading, adminExists]);
+      setInitAttempted(true);
+      setInitError(null);
 
-  // Reset hasAttemptedInit when identity changes so a new login can re-trigger init
-  useEffect(() => {
-    hasAttemptedInit.current = false;
-    setResetError(null);
-  }, [identity]);
+      initializeAdmin.mutate(
+        { adminToken: '', userProvidedToken: '' },
+        {
+          onSuccess: (result) => {
+            if (result.__kind__ === 'success') {
+              setTimeout(() => {
+                queryClient.invalidateQueries({ queryKey: ['adminStatus'] });
+                queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
+              }, 300);
+            } else {
+              setInitError(result.error || 'Failed to initialize admin');
+            }
+          },
+          onError: (err) => {
+            setInitError(err instanceof Error ? err.message : 'Failed to initialize admin');
+          },
+        }
+      );
+    }
+  }, [isAuthenticated, actorFetching, actor, adminExists, initAttempted, initializeAdmin, queryClient]);
 
   const handleLogin = async () => {
+    setLoginError(null);
     try {
       await login();
-    } catch (error: any) {
-      if (error?.message === 'User is already authenticated') {
-        await clear();
-        setTimeout(() => login(), 300);
+    } catch (error: unknown) {
+      const msg = error instanceof Error ? error.message : String(error);
+      if (msg.includes('popup') || msg.includes('blocked')) {
+        setLoginError('Popup blocked. Please allow popups for this site and try again.');
+      } else if (!msg.includes('already authenticated')) {
+        setLoginError('Login failed. Please try again.');
       }
     }
   };
 
   const handleResetAdmin = async () => {
-    setResetError(null);
-    resetAdmin.mutate(undefined, {
-      onSuccess: async () => {
-        // After reset, re-initialize with current caller
-        hasAttemptedInit.current = false;
-        await refetchAdminStatus();
-        // The useEffect will trigger initializeAdmin since adminExists will be false
-      },
-      onError: (err: Error) => {
-        setResetError(err.message);
-      },
-    });
+    setInitError(null);
+    setInitAttempted(false);
+    try {
+      await resetAdmin.mutateAsync();
+      await refetchAdminStatus();
+      await refetchCallerAdmin();
+    } catch (err) {
+      setInitError(err instanceof Error ? err.message : 'Reset failed');
+    }
   };
 
-  // ── Loading states ──────────────────────────────────────────────────────────
-  const isCheckingStatus =
+  const handleRefetch = useCallback(() => {
+    setInitAttempted(false);
+    setInitError(null);
+    queryClient.invalidateQueries({ queryKey: ['adminStatus'] });
+    queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
+  }, [queryClient]);
+
+  // Loading states
+  const isLoading =
+    isInitializing ||
+    actorFetching ||
     adminStatusLoading ||
     (isAuthenticated && callerAdminLoading) ||
-    initializeAdmin.isPending ||
-    resetAdmin.isPending;
+    initializeAdmin.isPending;
 
-  if (isCheckingStatus) {
-    let loadingMessage = 'Loading…';
-    if (initializeAdmin.isPending) loadingMessage = 'Setting up admin access…';
-    if (resetAdmin.isPending) loadingMessage = 'Resetting admin access…';
-
+  if (isLoading) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
-        <div className="flex items-center gap-3 opacity-60">
-          <Loader2 size={18} className="animate-spin" />
-          <p className="text-sm tracking-wide">{loadingMessage}</p>
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="animate-spin text-black dark:text-white" size={32} />
+          <p className="text-sm uppercase tracking-widest text-black dark:text-white">
+            {initializeAdmin.isPending ? 'Initializing admin...' : 'Loading...'}
+          </p>
         </div>
       </div>
     );
   }
 
-  // ── Access Denied: not authenticated ───────────────────────────────────────
+  // Not authenticated
   if (!isAuthenticated) {
     return (
-      <AccessDeniedScreen
-        message="Sign in with your admin account to access this page."
-        onLogin={handleLogin}
-        isLoggingIn={isLoggingIn}
-        canReset={false}
-        onReset={handleResetAdmin}
-        isResetting={resetAdmin.isPending}
-        resetError={resetError}
-        onGoHome={() => navigate({ to: '/' })}
-      />
-    );
-  }
-
-  // ── Access Denied: authenticated but not the admin ─────────────────────────
-  if (isAuthenticated && callerIsAdmin === false) {
-    return (
-      <AccessDeniedScreen
-        message="Your account does not have admin privileges for this application."
-        onLogin={handleLogin}
-        isLoggingIn={isLoggingIn}
-        canReset={true}
-        onReset={handleResetAdmin}
-        isResetting={resetAdmin.isPending}
-        resetError={resetError}
-        onGoHome={() => navigate({ to: '/' })}
-      />
-    );
-  }
-
-  // ── Admin Dashboard ────────────────────────────────────────────────────────
-  return (
-    <div className="min-h-[calc(100vh-4rem)] flex">
-      <AdminSidebar
-        activeSection={activeSection}
-        onSectionChange={setActiveSection}
-      />
-      <main className="flex-1 overflow-auto">
-        <div className="max-w-3xl mx-auto px-8 py-10">
-          <CMSContentEditor section={activeSection} />
-        </div>
-      </main>
-    </div>
-  );
-}
-
-// ── Access Denied Screen Component ────────────────────────────────────────────
-interface AccessDeniedScreenProps {
-  message: string;
-  onLogin: () => void;
-  isLoggingIn: boolean;
-  canReset: boolean;
-  onReset: () => void;
-  isResetting: boolean;
-  resetError: string | null;
-  onGoHome: () => void;
-}
-
-function AccessDeniedScreen({
-  message,
-  onLogin,
-  isLoggingIn,
-  canReset,
-  onReset,
-  isResetting,
-  resetError,
-  onGoHome,
-}: AccessDeniedScreenProps) {
-  return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-6">
-      <div className="text-center max-w-sm w-full">
-        <AlertCircle size={32} className="mx-auto mb-4 opacity-40" />
-        <h2 className="font-heading text-2xl mb-2">Access Denied</h2>
-        <p className="text-sm opacity-60 mb-8">{message}</p>
-
-        {resetError && (
-          <p className="text-sm mb-4 px-3 py-2 border border-foreground/20 bg-foreground/5 text-foreground/80">
-            {resetError}
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black">
+        <div className="flex flex-col items-center gap-6 max-w-sm text-center px-6">
+          <ShieldAlert size={48} className="text-black dark:text-white" />
+          <h1 className="text-2xl font-bold uppercase tracking-widest text-black dark:text-white">
+            Admin Access
+          </h1>
+          <p className="text-sm text-black/60 dark:text-white/60">
+            Sign in with Internet Identity to access the admin dashboard.
           </p>
-        )}
-
-        <div className="flex flex-col gap-3 items-center">
-          {/* Sign In button */}
+          {loginError && (
+            <p className="text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 px-4 py-2 w-full">
+              {loginError}
+            </p>
+          )}
           <button
-            onClick={onLogin}
-            disabled={isLoggingIn || isResetting}
-            className="flex items-center gap-2 px-6 py-2.5 bg-foreground text-background text-sm font-medium hover:bg-foreground/85 transition-colors disabled:opacity-50 disabled:cursor-not-allowed w-full justify-center"
+            onClick={handleLogin}
+            disabled={isLoggingIn}
+            className="flex items-center gap-2 bg-black dark:bg-white text-white dark:text-black px-8 py-3 text-sm font-bold uppercase tracking-widest disabled:opacity-50"
           >
             {isLoggingIn ? (
               <>
-                <Loader2 size={15} className="animate-spin" />
-                Signing in…
+                <Loader2 size={16} className="animate-spin" />
+                Signing in...
               </>
             ) : (
               <>
-                <LogIn size={15} />
+                <LogIn size={16} />
                 Sign In
               </>
             )}
           </button>
-
-          {/* Reset Admin Access button */}
-          <button
-            onClick={onReset}
-            disabled={!canReset || isResetting || isLoggingIn}
-            className="flex items-center gap-2 px-6 py-2.5 border border-foreground/30 text-foreground text-sm hover:bg-foreground/5 transition-colors disabled:opacity-30 disabled:cursor-not-allowed w-full justify-center"
-          >
-            {isResetting ? (
-              <>
-                <Loader2 size={15} className="animate-spin" />
-                Resetting…
-              </>
-            ) : (
-              <>
-                <RefreshCw size={15} />
-                Reset Admin Access
-              </>
-            )}
-          </button>
-
-          <button
-            onClick={onGoHome}
-            disabled={isLoggingIn || isResetting}
-            className="px-6 py-2 text-foreground/50 text-sm hover:text-foreground transition-colors w-full disabled:opacity-30"
-          >
-            Go Home
-          </button>
         </div>
       </div>
+    );
+  }
+
+  // Init error (e.g., admin already set by someone else)
+  if (initError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black">
+        <div className="flex flex-col items-center gap-6 max-w-sm text-center px-6">
+          <ShieldAlert size={48} className="text-black dark:text-white" />
+          <h1 className="text-2xl font-bold uppercase tracking-widest text-black dark:text-white">
+            Access Denied
+          </h1>
+          <p className="text-sm text-black/60 dark:text-white/60">{initError}</p>
+          <div className="flex flex-col gap-3 w-full">
+            <button
+              onClick={handleRefetch}
+              className="flex items-center justify-center gap-2 border border-black dark:border-white text-black dark:text-white px-6 py-2 text-sm font-bold uppercase tracking-widest"
+            >
+              <RefreshCw size={14} />
+              Retry
+            </button>
+            <button
+              onClick={handleResetAdmin}
+              disabled={resetAdmin.isPending}
+              className="flex items-center justify-center gap-2 bg-black dark:bg-white text-white dark:text-black px-6 py-2 text-sm font-bold uppercase tracking-widest disabled:opacity-50"
+            >
+              {resetAdmin.isPending ? <Loader2 size={14} className="animate-spin" /> : null}
+              Reset Admin Access
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Authenticated but not admin (and admin already exists)
+  if (adminExists && isCallerAdmin === false) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black">
+        <div className="flex flex-col items-center gap-6 max-w-sm text-center px-6">
+          <ShieldAlert size={48} className="text-black dark:text-white" />
+          <h1 className="text-2xl font-bold uppercase tracking-widest text-black dark:text-white">
+            Access Denied
+          </h1>
+          <p className="text-sm text-black/60 dark:text-white/60">
+            Your account does not have admin privileges.
+          </p>
+          <div className="flex flex-col gap-3 w-full">
+            <button
+              onClick={handleRefetch}
+              className="flex items-center justify-center gap-2 border border-black dark:border-white text-black dark:text-white px-6 py-2 text-sm font-bold uppercase tracking-widest"
+            >
+              <RefreshCw size={14} />
+              Retry Check
+            </button>
+            <button
+              onClick={handleResetAdmin}
+              disabled={resetAdmin.isPending}
+              className="flex items-center justify-center gap-2 bg-black dark:bg-white text-white dark:text-black px-6 py-2 text-sm font-bold uppercase tracking-widest disabled:opacity-50"
+            >
+              {resetAdmin.isPending ? <Loader2 size={14} className="animate-spin" /> : null}
+              Reset Admin Access
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Render dashboard
+  return (
+    <div className="min-h-screen flex bg-white dark:bg-black">
+      <AdminSidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+      <main className="flex-1 p-8 overflow-auto">
+        <div className="max-w-4xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold uppercase tracking-widest text-black dark:text-white">
+              Admin Dashboard
+            </h1>
+            <p className="text-sm text-black/50 dark:text-white/50 mt-1 font-mono">
+              {identity?.getPrincipal().toString().slice(0, 24)}...
+            </p>
+          </div>
+
+          {activeSection === 'settings' ? (
+            <SettingsPage />
+          ) : (
+            <CMSContentEditor section={activeSection} />
+          )}
+        </div>
+      </main>
     </div>
   );
 }

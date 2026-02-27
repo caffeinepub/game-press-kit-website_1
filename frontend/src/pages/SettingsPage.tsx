@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from '@tanstack/react-router';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useGetAdminStatus, useCheckPasswordEnabled, useEnablePasswordProtection, useDisablePasswordProtection, useUpdateBodyTextColor, useGetBodyTextColor } from '../hooks/useQueries';
-import { useAppTheme } from '../App';
+import { useIsCallerAdmin, useCheckPasswordEnabled, useEnablePasswordProtection, useDisablePasswordProtection, useUpdateBodyTextColor, useGetBodyTextColor } from '../hooks/useQueries';
 import { AlertCircle, Lock, Unlock, RefreshCw, Palette } from 'lucide-react';
 import { toast } from 'sonner';
-import AdminSidebar from '../components/AdminSidebar';
 
 const GRAYSCALE_SWATCHES = [
   { label: 'Black', value: '#0a0a0a' },
@@ -18,49 +15,36 @@ const GRAYSCALE_SWATCHES = [
 
 export default function SettingsPage() {
   const { identity } = useInternetIdentity();
-  const { data: isAdmin, isLoading } = useGetAdminStatus();
-  const navigate = useNavigate();
-  const { isDark } = useAppTheme();
+  const { data: isCallerAdmin, isLoading } = useIsCallerAdmin();
 
   if (isLoading) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
+      <div className="flex items-center justify-center py-16">
         <p className="text-sm opacity-50">Loading…</p>
       </div>
     );
   }
 
-  if (!identity || !isAdmin) {
+  if (!identity || !isCallerAdmin) {
     return (
-      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-6">
+      <div className="flex items-center justify-center py-16 px-6">
         <div className="text-center max-w-sm">
           <AlertCircle size={32} className="mx-auto mb-4 opacity-40" />
           <h2 className="font-heading text-2xl mb-2">Access Denied</h2>
           <p className="text-sm opacity-60 mb-6">Admin access required.</p>
-          <button
-            onClick={() => navigate({ to: '/' })}
-            className="px-6 py-2 bg-foreground text-background text-sm hover:bg-foreground/85 transition-colors"
-          >
-            Go Home
-          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex">
-      <AdminSidebar activeSection="settings" onSectionChange={() => {}} />
-      <main className="flex-1 overflow-auto">
-        <div className="max-w-2xl mx-auto px-8 py-10 space-y-12">
-          <div>
-            <h1 className="font-heading text-3xl mb-1">Settings</h1>
-            <p className="text-sm opacity-50">Configure press kit access and theme</p>
-          </div>
-          <PasswordProtectionSection />
-          <ThemeColorSection />
-        </div>
-      </main>
+    <div className="space-y-12">
+      <div>
+        <h2 className="font-heading text-2xl mb-1">Settings</h2>
+        <p className="text-sm opacity-50">Configure press kit access and theme</p>
+      </div>
+      <PasswordProtectionSection />
+      <ThemeColorSection />
     </div>
   );
 }

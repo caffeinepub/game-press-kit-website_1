@@ -2,28 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-in-the-press-kit-screenshots-gallery-frontend-src-pages-presskitpage-tsx-add-a-1-pixel-solid-black-border-to-every-screenshot-image-in-the-responsive-grid-the-border-must-also-apply-to-the-image-displayed-inside-the-fullscreen-overlay-in-dark-mode-the-border-should-be-1px-solid-white-to-remain-visible-against-the-dark-background-the-border-must-be-applied-directly-to-the-img-elements-via-tailwind-classes-or-inline-styles",
-      "featureTitle": "In the Press Kit screenshots gallery (frontend/src/pages/PressKitPage.tsx), add a 1-pixel solid black border to every screenshot image in the responsive grid. The border must also apply to the image displayed inside the fullscreen overlay. In dark mode, the border should be 1px solid white (to remain visible against the dark background). The border must be applied directly to the <img> elements via Tailwind classes or inline styles.",
+      "featureId": "feature-fix-the-internet-identity-authentication-flow-in-frontend-src-hooks-useinternetidentity-ts-read-only-and-any-surrounding-integration-code-so-that-login-works-correctly-across-all-major-browsers-chrome-safari-edge-firefox-audit-the-authclient-configuration-for-known-cross-browser-issues-ensure-the-identity-provider-url-is-correctly-set-for-production-using-the-ic-mainnet-ii-canister-url-that-popup-redirect-handling-is-compatible-with-browsers-that-block-third-party-popups-and-that-the-delegationidentity-and-storage-options-are-set-in-a-browser-agnostic-way-if-the-hook-itself-cannot-be-modified-immutable-path-create-a-wrapper-or-patch-the-integration-layer-in-useactor-ts-or-app-tsx-to-resolve-the-compatibility-gap",
+      "featureTitle": "Fix the Internet Identity authentication flow in frontend/src/hooks/useInternetIdentity.ts (read-only) and any surrounding integration code so that login works correctly across all major browsers (Chrome, Safari, Edge, Firefox). Audit the AuthClient configuration for known cross-browser issues: ensure the identity provider URL is correctly set for production (using the IC mainnet II canister URL), that popup/redirect handling is compatible with browsers that block third-party popups, and that the delegationIdentity and storage options are set in a browser-agnostic way. If the hook itself cannot be modified (immutable path), create a wrapper or patch the integration layer in useActor.ts or App.tsx to resolve the compatibility gap.",
       "files": [
-        "frontend/src/pages/PressKitPage.tsx"
-      ],
-      "components": [
-        "authorization@4.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-37"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-rewrite-frontend-src-components-header-tsx-from-scratch-to-definitively-fix-the-internet-identity-login-button-the-component-must-1-import-useinternetidentity-from-its-canonical-path-frontend-src-hooks-useinternetidentity-2-read-isauthenticated-or-equivalent-identity-principal-state-from-the-hook-synchronously-at-render-time-do-not-gate-the-button-on-any-async-loading-flag-that-delays-its-appearance-3-render-a-sign-in-button-in-the-top-right-corner-alongside-the-dark-light-theme-toggle-whenever-isauthenticated-is-false-4-call-the-hook-s-login-function-on-button-click-to-trigger-the-internet-identity-authentication-popup-5-hide-the-sign-in-button-completely-once-isauthenticated-is-true-6-style-the-button-in-the-monochrome-editorial-style-ghost-or-outlined-black-white-grayscale-only-no-color-accents-the-button-must-be-visible-on-first-page-load-when-the-user-is-not-logged-in-with-no-delay-or-flicker-caused-by-initialization-guards",
-      "featureTitle": "Rewrite frontend/src/components/Header.tsx from scratch to definitively fix the Internet Identity login button. The component must: (1) import useInternetIdentity from its canonical path 'frontend/src/hooks/useInternetIdentity'; (2) read isAuthenticated (or equivalent identity/principal state) from the hook synchronously at render time — do not gate the button on any async loading flag that delays its appearance; (3) render a 'Sign In' button in the top-right corner (alongside the dark/light theme toggle) whenever isAuthenticated is false; (4) call the hook's login() function on button click to trigger the Internet Identity authentication popup; (5) hide the 'Sign In' button completely once isAuthenticated is true; (6) style the button in the monochrome editorial style — ghost or outlined, black/white/grayscale only, no color accents. The button must be visible on first page load when the user is not logged in, with no delay or flicker caused by initialization guards.",
-      "files": [
+        "frontend/src/App.tsx",
         "frontend/src/components/Header.tsx"
       ],
       "components": [
@@ -35,7 +17,26 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-38"
+        "REQ-39"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-fix-the-admindashboard-page-frontend-src-pages-admindashboard-tsx-so-that-after-a-successful-internet-identity-login-the-admin-status-check-and-initializeadmin-auto-claim-flow-work-correctly-and-the-dashboard-renders-for-the-newly-authenticated-admin-without-showing-access-denied-ensure-the-actor-used-for-getadminstatus-and-initializeadmin-calls-is-updated-to-use-the-authenticated-identity-immediately-after-login-completes-so-the-backend-receives-the-correct-authenticated-principal-and-does-not-reject-it",
+      "featureTitle": "Fix the AdminDashboard page (frontend/src/pages/AdminDashboard.tsx) so that after a successful Internet Identity login, the admin status check and initializeAdmin() auto-claim flow work correctly and the dashboard renders for the newly authenticated admin — without showing 'Access Denied'. Ensure the actor used for getAdminStatus() and initializeAdmin() calls is updated to use the authenticated identity immediately after login completes, so the backend receives the correct authenticated principal and does not reject it.",
+      "files": [
+        "frontend/src/pages/AdminDashboard.tsx"
+      ],
+      "components": [
+        "authorization@4.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-41"
       ],
       "confidence": "high"
     }

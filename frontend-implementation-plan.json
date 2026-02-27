@@ -1,41 +1,44 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Screenshot 1px border + reliable Internet Identity login in header",
+  "title": "Fix Internet Identity cross-browser compatibility and admin access rejection",
   "requirements": [
     {
-      "id": "REQ-37",
-      "summary": "Add 1px border to screenshot images in press kit gallery with dark mode support",
+      "id": "REQ-39",
+      "summary": "Fix Internet Identity authentication flow for cross-browser compatibility by patching the integration layer to ensure correct identity provider URL, popup handling, and storage configuration work in Chrome, Safari, Edge, and Firefox",
       "acceptanceCriteria": [
-        "Each screenshot thumbnail in the grid has a visible 1px solid black border in light mode",
-        "Each screenshot thumbnail in the grid has a visible 1px solid white border in dark mode",
-        "The fullscreen overlay image also has the 1px border applied",
-        "No other UI elements gain unexpected borders"
+        "Internet Identity login popup opens and completes successfully in Chrome, Safari, Edge, and Firefox",
+        "After completing II authentication in any browser, the user is recognized as authenticated (isAuthenticated is true)",
+        "The Sign In button disappears after successful login in all browsers",
+        "No browser-specific errors or silent failures during the authentication flow"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/PressKitPage.tsx",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add 1px solid border to all screenshot <img> elements in the responsive grid using Tailwind classes 'border border-black dark:border-white'. Apply the same border classes to the fullscreen overlay <img> element that displays when a screenshot is clicked. Ensure the border is applied directly to the img tags, not to wrapper divs, and verify the border is visible in both light and dark modes without affecting any other UI elements."
+          "description": "Audit the InternetIdentityProvider wrapper to ensure it passes browser-compatible configuration to the underlying useInternetIdentity hook. Verify that the identity provider URL is set to the IC mainnet Internet Identity canister URL (https://identity.ic0.app) for production. If the hook's internal AuthClient configuration cannot be modified directly, add a configuration object or environment variable override that ensures cross-browser compatibility for popup/redirect handling and delegation options. Test that after login completes, the identity state propagates correctly to all child components in all major browsers."
+        },
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "operation": "modify",
+          "description": "Review the Sign In button's login flow and ensure that after the login promise resolves, the component properly reflects the authenticated state by checking identity from useInternetIdentity. Add error handling for browsers that block third-party popups or cookies, displaying a user-friendly message if the login fails due to browser restrictions. Ensure the button state (text and visibility) updates correctly in all browsers after authentication completes."
         }
       ]
     },
     {
-      "id": "REQ-38",
-      "summary": "Rewrite Header component to show working Internet Identity sign-in button on first render",
+      "id": "REQ-41",
+      "summary": "Fix AdminDashboard to re-instantiate the actor with the authenticated identity immediately after Internet Identity login completes, ensuring getAdminStatus and initializeAdmin calls use the correct authenticated principal and the dashboard renders without showing 'Access Denied'",
       "acceptanceCriteria": [
-        "The 'Sign In' button is visible in the top-right corner on first page load when the user has no active Internet Identity session",
-        "Clicking 'Sign In' opens the Internet Identity authentication popup",
-        "After successful login, the 'Sign In' button disappears from the header",
-        "The button is styled monochromatically (no color accents, black/white/grayscale only)",
-        "The button appears on all four routes: /, /press-kit, /admin, /admin/settings",
-        "No initialization loading guard delays or prevents the button from rendering when unauthenticated"
+        "After Internet Identity login completes on the AdminDashboard, the actor is re-instantiated with the authenticated identity before calling getAdminStatus()",
+        "If no admin is set, initializeAdmin() is called with the authenticated identity and the calling principal is stored as admin",
+        "The dashboard renders correctly after the admin claim without showing 'Access Denied'",
+        "If an admin is already set and the logged-in principal matches, the dashboard renders without requiring a reset"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/Header.tsx",
+          "path": "frontend/src/pages/AdminDashboard.tsx",
           "operation": "modify",
-          "description": "Completely rewrite the Header component to fix the Internet Identity login button. Import useInternetIdentity from 'frontend/src/hooks/useInternetIdentity' and read the identity field synchronously at render time. Render a 'Sign In' button in the top-right corner (next to the theme toggle) whenever identity is null or undefined—do not gate the button's visibility on loginStatus === 'idle' or any other async loading flag. On button click, call the login() function from the hook to trigger the Internet Identity popup. Hide the 'Sign In' button completely when identity is truthy (user is authenticated). Style the button using monochrome classes only: ghost or outlined style with black text in light mode and white text in dark mode, no color accents. Remove any initialization guards or loginStatus checks that prevent the button from appearing immediately on first page load when the user is unauthenticated. Ensure the button is visible and functional on all routes."
+          "description": "Modify the AdminDashboard component to listen for identity changes from useInternetIdentity and force a refetch of the actor from useActor when the identity becomes available. After login completes and the identity is set, invalidate and refetch the actor query so that subsequent getAdminStatus() and initializeAdmin() calls use the authenticated identity instead of an anonymous actor. Ensure the admin status check runs only after the actor has been updated with the authenticated identity. If no admin is set (getAdminStatus returns false), call initializeAdmin with the correct token values and handle the result to either render the dashboard or show an error. Remove or adjust any logic that causes 'Access Denied' to flash when the authenticated principal is valid but the actor hasn't yet been refreshed."
         }
       ]
     }

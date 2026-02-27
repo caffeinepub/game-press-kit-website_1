@@ -1,5 +1,4 @@
 import React from 'react';
-import { useNavigate } from '@tanstack/react-router';
 import { FileText, Image, Share2, Settings, ChevronRight } from 'lucide-react';
 
 type AdminSection = 'content' | 'media' | 'social' | 'settings';
@@ -17,8 +16,6 @@ const navItems: { id: AdminSection; label: string; icon: React.ReactNode }[] = [
 ];
 
 export default function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarProps) {
-  const navigate = useNavigate();
-
   return (
     <aside className="w-52 flex-shrink-0 border-r border-foreground/8 min-h-[calc(100vh-4rem)] py-8 px-4">
       <p className="text-xs uppercase tracking-widest opacity-40 mb-4 px-2">Dashboard</p>
@@ -26,15 +23,9 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
         {navItems.map(item => (
           <button
             key={item.id}
-            onClick={() => {
-              if (item.id === 'settings') {
-                navigate({ to: '/admin/settings' });
-              } else {
-                onSectionChange(item.id);
-              }
-            }}
+            onClick={() => onSectionChange(item.id)}
             className={`w-full flex items-center justify-between px-2 py-2 text-sm transition-colors ${
-              activeSection === item.id && item.id !== 'settings'
+              activeSection === item.id
                 ? 'bg-foreground text-background'
                 : 'text-foreground/70 hover:text-foreground hover:bg-foreground/6'
             }`}
@@ -43,7 +34,7 @@ export default function AdminSidebar({ activeSection, onSectionChange }: AdminSi
               {item.icon}
               {item.label}
             </span>
-            {activeSection === item.id && item.id !== 'settings' && (
+            {activeSection === item.id && (
               <ChevronRight size={12} />
             )}
           </button>
