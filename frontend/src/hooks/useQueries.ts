@@ -166,6 +166,28 @@ export function useVerifyPassword() {
   });
 }
 
+// ─── Initialize Admin mutation ────────────────────────────────────────────────
+
+export function useInitializeAdmin() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      // Pass empty strings for tokens — the backend accepts these when no admin is set yet
+      const result = await actor.initializeAdmin('', '');
+      if (result.__kind__ === 'error') {
+        throw new Error(result.error);
+      }
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminStatus'] });
+      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
+    },
+  });
+}
+
 // ─── Update mutations ─────────────────────────────────────────────────────────
 
 function useUpdateMutation<T>(

@@ -1,54 +1,34 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-27T14:54:52.800Z",
+  "generatedAt": "2026-02-27T15:56:55.912Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 2,
+    "total": 1,
+    "implemented": 1,
     "items": [
       {
-        "id": "REQ-19",
-        "summary": "Update the YouTube embed in the Press Kit video section to use the URL https://www.youtube.com/watch?v=C-Q0-2kiFhs. The iframe src must include query parameters `playsinline=1` and `fs=0`. The video thumbnail with play button overlay should remain; clicking it reveals the inline iframe and begins playback with this exact updated URL.",
+        "id": "REQ-26",
+        "summary": "On the Landing page (frontend/src/pages/LandingPage.tsx), remove the newsletter signup/subscribe component (email input and Subscribe button) and remove any 'Welcome to our game' heading or text. Keep the game logo, the CMS-driven game description paragraph, and the 'View Press Kit' CTA button.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/PressKitPage.tsx"
+          "frontend/src/pages/LandingPage.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/PressKitPage.tsx"
+          "frontend/src/pages/LandingPage.tsx"
         ]
-      },
-      {
-        "id": "REQ-20",
-        "summary": "In the fullscreen screenshot overlay on the Press Kit page, clicking directly on the displayed screenshot image must close the fullscreen overlay and return the user to the normal press kit view. The click handler must be attached to the image element itself (not just the backdrop), and it must stop event propagation so only the intended close action fires.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/pages/PressKitPage.tsx"
-        ],
-        "matchedFiles": [
-          "frontend/src/pages/PressKitPage.tsx"
-        ]
-      },
-      {
-        "id": "REQ-21",
-        "summary": "Reset the admin principal in the Motoko backend so that the next user to authenticate via Internet Identity and call initializeAdmin() becomes the new permanent admin. Clear the stored adminPrincipal stable variable (set it to null / opt Principal null) so the admin initialization flow can be triggered fresh. Do not wipe any other CMS content (aboutText, features, gameDetails, etc.).",
-        "status": "unknown",
-        "plannedFiles": [],
-        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
-    "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/pages/PressKitPage.tsx",
+    "frontend/src/pages/LandingPage.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

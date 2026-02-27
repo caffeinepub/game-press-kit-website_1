@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 7,
+  "projectStateVersion": 15,
   "summary": "Black-and-white Game Press Kit Website with Internet Identity auth, admin CMS, optional password-protected press kit, dark/light theme toggle, and persistent ICP backend storage. First authenticated principal becomes permanent admin. ShadCN-inspired monochrome editorial aesthetic.",
   "architectural_notes": [
     "ICP canister backend with Motoko/Rust stable variables for persistent storage",
@@ -17,7 +17,7 @@
     "Fullscreen screenshot close-on-image-click not working as expected",
     "/admin login returns 'access denied' — admin principal needs reset"
   ],
-  "isFixRequest": true,
+  "isFixRequest": false,
   "existing_features": [
     {
       "id": "feature-build-a-global-react-app-shell-with-react-router-providing-four-routes-landing-press-kit-press-kit-admin-cms-dashboard-admin-settings-settings-include-a-persistent-header-on-all-pages-with-the-game-logo-gamelogo-png-on-the-left-a-dark-light-theme-toggle-on-the-right-and-a-sign-in-button-when-logged-out-when-the-authenticated-user-is-the-admin-replace-sign-in-with-an-edit-toggle-button-that-enables-cms-editing-mode-site-wide-use-fredoka-one-font-for-all-headings-loaded-via-google-fonts",
@@ -120,6 +120,38 @@
       "title": "In the fullscreen screenshot overlay on the Press Kit page, clicking directly on the displayed screenshot image must close the fullscreen overlay and return the user to the normal press kit view. The click handler must be attached to the image element itself (not just the backdrop), and it must stop event propagation so only the intended close action fires.",
       "reqIds": [
         "REQ-20"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-the-press-kit-page-hero-section-remove-the-untitled-game-heading-text-and-replace-it-with-the-gamelogo-png-image-apply-the-same-responsive-sizing-rules-used-on-the-landing-page-natural-size-on-desktop-scales-down-gracefully-on-mobile-using-max-w-full-w-auto-no-upscaling-beyond-natural-pixel-size-apply-the-dark-mode-invert-filter-filter-invert-1-to-the-logo-image-when-dark-mode-is-active-consistent-with-the-rest-of-the-site",
+      "title": "In the Press Kit page hero section, remove the 'Untitled Game' heading text and replace it with the gamelogo.png image. Apply the same responsive sizing rules used on the Landing page (natural size on desktop, scales down gracefully on mobile using max-w-full / w-auto, no upscaling beyond natural pixel size). Apply the dark-mode invert filter (filter: invert(1)) to the logo image when dark mode is active, consistent with the rest of the site.",
+      "reqIds": [
+        "REQ-22"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-remove-the-site-header-entirely-from-all-pages-replace-it-with-only-the-dark-light-mode-toggle-icon-positioned-in-the-top-right-corner-of-the-page-as-a-floating-or-minimally-styled-element-no-logo-no-sign-in-button-no-edit-toggle-no-admin-dashboard-link-only-the-theme-toggle-icon-must-remain-visible",
+      "title": "Remove the site header entirely from all pages. Replace it with only the dark/light mode toggle icon, positioned in the top-right corner of the page as a floating or minimally styled element. No logo, no Sign In button, no Edit toggle, no admin dashboard link — only the theme toggle icon must remain visible.",
+      "reqIds": [
+        "REQ-23"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-admindashboard-page-frontend-after-a-successful-internet-identity-login-automatically-call-initializeadmin-if-no-admin-has-been-set-yet-getadminstatus-returns-false-this-ensures-the-first-authenticated-user-seamlessly-becomes-the-admin-without-requiring-a-manual-extra-step",
+      "title": "On the AdminDashboard page frontend, after a successful Internet Identity login, automatically call initializeAdmin() if no admin has been set yet (getAdminStatus() returns false). This ensures the first authenticated user seamlessly becomes the admin without requiring a manual extra step.",
+      "reqIds": [
+        "REQ-25"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-on-the-landing-page-frontend-src-pages-landingpage-tsx-remove-the-newsletter-signup-subscribe-component-email-input-and-subscribe-button-and-remove-any-welcome-to-our-game-heading-or-text-keep-the-game-logo-the-cms-driven-game-description-paragraph-and-the-view-press-kit-cta-button",
+      "title": "On the Landing page (frontend/src/pages/LandingPage.tsx), remove the newsletter signup/subscribe component (email input and Subscribe button) and remove any 'Welcome to our game' heading or text. Keep the game logo, the CMS-driven game description paragraph, and the 'View Press Kit' CTA button.",
+      "reqIds": [
+        "REQ-26"
       ],
       "version": 1
     }
@@ -265,6 +297,32 @@
       "reqIds": [
         "REQ-21"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-25",
+      "summary": "Remove the 'Untitled Game' header text from the site and replace it with the gamelogo.png image",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-26",
+      "summary": "Remove the site header entirely and show only the dark/light mode toggle icon (no logo, no sign-in button, no other header elements)",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-27",
+      "summary": "In the Motoko backend, reset the stored adminPrincipal stable variable to null (opt Principal null) so that the next authenticated user who calls initializeAdmin() becomes the new permanent admin. Do not clear or modify any other CMS stable variables (aboutText, features, gameDetails, instagramLink, developerLink, pressEmail, bodyTextColor, gameTitle, tagline, passwordEnabled, passwordHash).",
+      "reqIds": [
+        "REQ-24"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-28",
+      "summary": "On the landing/welcome page, remove the newsletter subscribe component and the 'Welcome to our game' text",
+      "reqIds": [],
       "status": "pending"
     }
   ],

@@ -35,7 +35,6 @@ export default function PressKitPage() {
   const verifyMutation = useVerifyPassword();
 
   // Content
-  const { data: gameTitle = 'Poke A Nose' } = useGetGameTitle();
   const { data: tagline = '' } = useGetTagline();
   const { data: aboutText = '' } = useGetAboutText();
   const { data: features = [] } = useGetFeatures();
@@ -45,7 +44,6 @@ export default function PressKitPage() {
   const { data: pressEmail = '' } = useGetPressEmail();
 
   // Update mutations
-  const updateTitle = useUpdateGameTitle();
   const updateTagline = useUpdateTagline();
   const updateAbout = useUpdateAboutText();
   const updateFeatures = useUpdateFeatures();
@@ -127,15 +125,14 @@ export default function PressKitPage() {
 
         {/* ── Hero ── */}
         <section className="text-center space-y-3">
-          <h1 className="text-editorial-xl text-foreground">
-            <InlineEditableField
-              value={gameTitle}
-              isEditing={isEditing}
-              onSave={async v => { await updateTitle.mutateAsync(v); toast.success('Title saved'); }}
-              className="font-heading"
-              inputClassName="text-editorial-xl font-heading text-center w-full"
+          <div className="flex justify-center">
+            <img
+              src="/assets/gamelogo.png"
+              alt="Game Logo"
+              className={`max-w-full w-auto h-auto ${isDark ? 'invert' : ''}`}
+              style={{ maxHeight: '180px', transition: 'filter 0.3s ease' }}
             />
-          </h1>
+          </div>
           <p className="text-xl opacity-70">
             <InlineEditableField
               value={tagline}

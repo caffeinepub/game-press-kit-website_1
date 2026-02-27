@@ -1,39 +1,24 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix YouTube URL and screenshot fullscreen close",
+  "title": "Remove newsletter subscribe component and 'Welcome to our game' text from Landing page",
   "requirements": [
     {
-      "id": "REQ-19",
-      "summary": "Update YouTube embed URL to C-Q0-2kiFhs with playsinline and fs=0 parameters",
+      "id": "REQ-26",
+      "summary": "Remove the newsletter signup/subscribe component (email input and Subscribe button) and any 'Welcome to our game' heading or text from the Landing page, while preserving the game logo, CMS-driven description paragraph, and 'View Press Kit' CTA button",
       "acceptanceCriteria": [
-        "The iframe embed URL is exactly https://www.youtube.com/embed/C-Q0-2kiFhs?playsinline=1&fs=0&autoplay=1 (or equivalent with those parameters) when the play button is clicked",
-        "The old video ID (5in-hIASH08) does not appear anywhere in PressKitPage.tsx",
-        "Clicking the thumbnail play button reveals the inline iframe and starts playback",
-        "No fullscreen button is shown in the embedded player"
+        "The newsletter email input and Subscribe button are no longer rendered on the Landing page.",
+        "Any 'Welcome to our game' heading or label text is no longer visible on the Landing page.",
+        "The game logo (gamelogo.png) remains displayed at natural/responsive size.",
+        "The CMS-driven game description paragraph remains visible.",
+        "The 'View Press Kit' CTA button remains visible and navigates to /press-kit.",
+        "No layout regressions or broken spacing on the Landing page."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/PressKitPage.tsx",
+          "path": "frontend/src/pages/LandingPage.tsx",
           "operation": "modify",
-          "description": "Update the YouTube video ID from '5in-hIASH08' to 'C-Q0-2kiFhs' in the videoId constant. Ensure the iframe src includes query parameters playsinline=1 and fs=0 in addition to autoplay=1. The video thumbnail with play button overlay should remain functional, revealing the inline iframe with the updated URL when clicked."
-        }
-      ]
-    },
-    {
-      "id": "REQ-20",
-      "summary": "Add click handler to screenshot image in fullscreen overlay to close the overlay",
-      "acceptanceCriteria": [
-        "Clicking the screenshot image in fullscreen overlay closes the overlay",
-        "After closing, the press kit page content is visible and scroll is re-enabled",
-        "No previous/next navigation arrows are present in the overlay",
-        "Clicking the backdrop (outside the image) also closes the overlay"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/PressKitPage.tsx",
-          "operation": "modify",
-          "description": "Add an onClick handler directly to the <img> element inside the fullscreen screenshot overlay. The handler must call setFullscreenImage(null) and stopPropagation() to prevent the event from bubbling. This ensures clicking the image itself (not just the backdrop) closes the overlay and returns the user to the normal press kit view."
+          "description": "Remove the newsletter signup form (email input field and Subscribe button) and any 'Welcome to our game' heading or text from the component. Retain the game logo image (frontend/public/assets/gamelogo.png), the CMS-driven game description paragraph fetched via useAboutText, and the 'View Press Kit' CTA button that navigates to /press-kit. Ensure no layout regressions occur after removal."
         }
       ]
     }

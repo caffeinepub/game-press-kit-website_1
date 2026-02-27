@@ -6,9 +6,9 @@ import Nat "mo:core/Nat";
 import Map "mo:core/Map";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
-import Migration "migration";
 
-(with migration = Migration.run)
+
+
 actor {
   public type GameDetails = {
     genre : Text;
@@ -57,7 +57,6 @@ actor {
   var developerLink : Text = "https://developer.com/";
   var pressEmail : Text = "press@game.com";
 
-  // User profile functions required by frontend
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     userProfiles.get(caller);
   };
@@ -76,7 +75,6 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // Custom takeFirstN function
   func takeFirstN(array : [Text], n : Nat) : [Text] {
     var result : [Text] = [];
     var count = 0;
@@ -92,14 +90,10 @@ actor {
     result;
   };
 
-  // Initialize admin using AccessControl
-  // Only callable when no admin has been set yet (fresh state or after migration reset)
   public shared ({ caller }) func initializeAdmin(adminToken : Text, userProvidedToken : Text) : async AdminResult {
-    // Prevent anonymous principals from becoming admin
     if (caller.isAnonymous()) {
       return #error("Anonymous principals cannot become admin");
     };
-    // Only allow initialization if no admin exists yet
     if (AccessControl.isAdmin(accessControlState, caller)) {
       return #error("Admin already initialized");
     };
@@ -156,10 +150,8 @@ actor {
       return #notAdmin;
     };
 
-    // Limit items to 4
     let safeItems = takeFirstN(items, 4);
 
-    // Add items with length < 100 characters
     for (item in safeItems.values()) {
       if (item.size() < 100) {
         featuresList.add(item);

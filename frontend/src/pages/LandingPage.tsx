@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from '@tanstack/react-router';
-import { ArrowRight, Mail } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useAppTheme } from '../App';
 import { useGetAboutText } from '../hooks/useQueries';
 
@@ -39,13 +39,10 @@ export default function LandingPage() {
         {/* Description */}
         <div className="max-w-xl mx-auto mb-10 animate-fade-in">
           <p className="text-lg leading-relaxed opacity-80">
-            {aboutText || 'A hand-drawn adventure game about curiosity, laundromats, and the art of poking things you probably shouldn\'t.'}
+            {aboutText && aboutText !== 'Welcome to our game!'
+              ? aboutText
+              : 'A hand-drawn adventure game about curiosity, laundromats, and the art of poking things you probably shouldn\'t.'}
           </p>
-        </div>
-
-        {/* Newsletter */}
-        <div className="w-full max-w-sm mx-auto mb-10 animate-fade-in">
-          <NewsletterPlaceholder />
         </div>
 
         {/* CTA */}
@@ -75,45 +72,5 @@ export default function LandingPage() {
         </p>
       </footer>
     </div>
-  );
-}
-
-function NewsletterPlaceholder() {
-  const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email.trim()) {
-      setSubmitted(true);
-    }
-  };
-
-  if (submitted) {
-    return (
-      <div className="text-center py-3">
-        <p className="text-sm opacity-70">Thanks! We'll be in touch.</p>
-      </div>
-    );
-  }
-
-  return (
-    <form onSubmit={handleSubmit} className="flex gap-0">
-      <input
-        type="email"
-        value={email}
-        onChange={e => setEmail(e.target.value)}
-        placeholder="your@email.com"
-        className="flex-1 px-4 py-2.5 text-sm bg-background/80 text-foreground border border-foreground/20 focus:outline-none focus:border-foreground/60 transition-colors placeholder:opacity-40"
-        required
-      />
-      <button
-        type="submit"
-        className="px-4 py-2.5 bg-foreground text-background text-sm font-medium hover:bg-foreground/85 transition-colors flex items-center gap-1.5"
-      >
-        <Mail size={14} />
-        Subscribe
-      </button>
-    </form>
   );
 }
