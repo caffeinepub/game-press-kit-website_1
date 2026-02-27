@@ -2,10 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-on-the-admindashboard-page-frontend-src-pages-admindashboard-tsx-after-the-user-logs-in-via-internet-identity-call-getadminstatus-to-check-if-an-admin-exists-if-no-admin-exists-returns-false-automatically-call-initializeadmin-to-claim-the-slot-then-re-query-admin-status-to-confirm-if-the-user-is-now-admin-render-the-dashboard-if-still-not-admin-another-principal-already-claimed-it-show-the-access-denied-message-with-the-login-button-ensure-the-logic-correctly-re-evaluates-after-each-async-step-so-the-ui-reflects-the-true-state",
-      "featureTitle": "On the AdminDashboard page (frontend/src/pages/AdminDashboard.tsx), after the user logs in via Internet Identity, call `getAdminStatus()` to check if an admin exists. If no admin exists (returns false), automatically call `initializeAdmin()` to claim the slot. Then re-query admin status to confirm. If the user is now admin, render the dashboard. If still not admin (another principal already claimed it), show the access denied message with the login button. Ensure the logic correctly re-evaluates after each async step so the UI reflects the true state.",
+      "featureId": "feature-in-the-press-kit-screenshots-gallery-frontend-src-pages-presskitpage-tsx-add-a-1-pixel-solid-black-border-to-every-screenshot-image-in-the-responsive-grid-the-border-must-also-apply-to-the-image-displayed-inside-the-fullscreen-overlay-in-dark-mode-the-border-should-be-1px-solid-white-to-remain-visible-against-the-dark-background-the-border-must-be-applied-directly-to-the-img-elements-via-tailwind-classes-or-inline-styles",
+      "featureTitle": "In the Press Kit screenshots gallery (frontend/src/pages/PressKitPage.tsx), add a 1-pixel solid black border to every screenshot image in the responsive grid. The border must also apply to the image displayed inside the fullscreen overlay. In dark mode, the border should be 1px solid white (to remain visible against the dark background). The border must be applied directly to the <img> elements via Tailwind classes or inline styles.",
       "files": [
-        "frontend/src/pages/AdminDashboard.tsx"
+        "frontend/src/pages/PressKitPage.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -16,16 +16,15 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-30"
+        "REQ-37"
       ],
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-visible-reset-admin-access-button-on-the-admindashboard-access-denied-screen-frontend-src-pages-admindashboard-tsx-when-clicked-this-button-calls-the-resetadmin-backend-function-then-automatically-triggers-the-initializeadmin-flow-so-the-currently-logged-in-user-claims-admin-if-the-user-is-not-yet-logged-in-prompt-them-to-log-in-first-before-the-reset-button-is-available-style-the-button-in-the-monochrome-editorial-style-black-background-white-text-or-outlined-ghost-style-no-colors-outside-000000-ffffff-grayscale",
-      "featureTitle": "Add a visible 'Reset Admin Access' button on the AdminDashboard access-denied screen (frontend/src/pages/AdminDashboard.tsx). When clicked, this button calls the `resetAdmin()` backend function, then automatically triggers the `initializeAdmin()` flow so the currently logged-in user claims admin. If the user is not yet logged in, prompt them to log in first before the reset button is available. Style the button in the monochrome editorial style (black background, white text, or outlined ghost style — no colors outside #000000, #FFFFFF, grayscale).",
+      "featureId": "feature-rewrite-frontend-src-components-header-tsx-from-scratch-to-definitively-fix-the-internet-identity-login-button-the-component-must-1-import-useinternetidentity-from-its-canonical-path-frontend-src-hooks-useinternetidentity-2-read-isauthenticated-or-equivalent-identity-principal-state-from-the-hook-synchronously-at-render-time-do-not-gate-the-button-on-any-async-loading-flag-that-delays-its-appearance-3-render-a-sign-in-button-in-the-top-right-corner-alongside-the-dark-light-theme-toggle-whenever-isauthenticated-is-false-4-call-the-hook-s-login-function-on-button-click-to-trigger-the-internet-identity-authentication-popup-5-hide-the-sign-in-button-completely-once-isauthenticated-is-true-6-style-the-button-in-the-monochrome-editorial-style-ghost-or-outlined-black-white-grayscale-only-no-color-accents-the-button-must-be-visible-on-first-page-load-when-the-user-is-not-logged-in-with-no-delay-or-flicker-caused-by-initialization-guards",
+      "featureTitle": "Rewrite frontend/src/components/Header.tsx from scratch to definitively fix the Internet Identity login button. The component must: (1) import useInternetIdentity from its canonical path 'frontend/src/hooks/useInternetIdentity'; (2) read isAuthenticated (or equivalent identity/principal state) from the hook synchronously at render time — do not gate the button on any async loading flag that delays its appearance; (3) render a 'Sign In' button in the top-right corner (alongside the dark/light theme toggle) whenever isAuthenticated is false; (4) call the hook's login() function on button click to trigger the Internet Identity authentication popup; (5) hide the 'Sign In' button completely once isAuthenticated is true; (6) style the button in the monochrome editorial style — ghost or outlined, black/white/grayscale only, no color accents. The button must be visible on first page load when the user is not logged in, with no delay or flicker caused by initialization guards.",
       "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/AdminDashboard.tsx"
+        "frontend/src/components/Header.tsx"
       ],
       "components": [
         "authorization@4.0.0",
@@ -36,7 +35,7 @@
         "github-export-icp-cli@1.0.0"
       ],
       "testIds": [
-        "REQ-31"
+        "REQ-38"
       ],
       "confidence": "high"
     }

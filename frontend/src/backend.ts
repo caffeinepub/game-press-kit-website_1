@@ -132,7 +132,7 @@ export interface backendInterface {
     getTagline(): Promise<string>;
     getUserProfile(user: Principal): Promise<UserProfile | null>;
     initializeAdmin(adminToken: string, userProvidedToken: string): Promise<AdminResult>;
-    isAdmin(principal: Principal): Promise<boolean>;
+    isAdmin(p: Principal): Promise<boolean>;
     isCallerAdmin(): Promise<boolean>;
     resetAdmin(): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;

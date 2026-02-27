@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 19,
+  "projectStateVersion": 29,
   "summary": "Black-and-white Game Press Kit Website with Internet Identity auth, admin CMS, optional password-protected press kit, dark/light theme toggle, and persistent ICP backend storage. First authenticated principal becomes permanent admin. ShadCN-inspired monochrome editorial aesthetic.",
   "architectural_notes": [
     "ICP canister backend with Motoko/Rust stable variables for persistent storage",
@@ -15,7 +15,9 @@
   "known_issues": [
     "YouTube video URL not updating to https://www.youtube.com/watch?v=C-Q0-2kiFhs despite prior build",
     "Fullscreen screenshot close-on-image-click not working as expected",
-    "/admin login returns 'access denied' — admin principal needs reset"
+    "/admin login returns 'access denied' — admin principal needs reset",
+    "ICP deployment failing (proxy works but deployment does not)",
+    "Internet Identity login/sign-in button still not appearing in header after multiple build attempts (Version 12, 13)"
   ],
   "isFixRequest": true,
   "existing_features": [
@@ -176,6 +178,46 @@
       "title": "Add a visible 'Reset Admin Access' button on the AdminDashboard access-denied screen (frontend/src/pages/AdminDashboard.tsx). When clicked, this button calls the `resetAdmin()` backend function, then automatically triggers the `initializeAdmin()` flow so the currently logged-in user claims admin. If the user is not yet logged in, prompt them to log in first before the reset button is available. Style the button in the monochrome editorial style (black background, white text, or outlined ghost style — no colors outside #000000, #FFFFFF, grayscale).",
       "reqIds": [
         "REQ-31"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-rewrite-frontend-src-pages-admindashboard-tsx-from-scratch-the-page-must-1-check-if-the-user-is-authenticated-via-useinternetidentity-2-if-not-authenticated-show-a-centered-access-denied-screen-with-an-internet-identity-login-button-using-the-hook-s-login-function-and-a-reset-admin-access-button-disabled-when-not-logged-in-3-after-login-call-getadminstatus-to-check-if-an-admin-exists-if-no-admin-exists-automatically-call-initializeadmin-to-claim-the-slot-then-re-query-to-confirm-if-the-user-is-now-confirmed-admin-render-the-full-dashboard-if-still-not-admin-after-initializeadmin-show-the-access-denied-screen-4-the-reset-admin-access-button-visible-only-when-authenticated-calls-resetadmin-then-automatically-calls-initializeadmin-to-reclaim-the-slot-then-re-queries-admin-status-to-update-the-ui-5-render-the-dashboard-adminsidebar-cmscontenteditor-only-when-the-authenticated-user-is-confirmed-admin-all-buttons-must-be-styled-in-the-monochrome-editorial-style-black-white-grayscale-only-no-color-accents",
+      "title": "Rewrite frontend/src/pages/AdminDashboard.tsx from scratch. The page must: (1) Check if the user is authenticated via useInternetIdentity. (2) If not authenticated, show a centered 'Access Denied' screen with an Internet Identity login button (using the hook's login function) and a 'Reset Admin Access' button (disabled when not logged in). (3) After login, call getAdminStatus() to check if an admin exists. If no admin exists, automatically call initializeAdmin() to claim the slot, then re-query to confirm. If the user is now confirmed admin, render the full dashboard. If still not admin after initializeAdmin(), show the access-denied screen. (4) The 'Reset Admin Access' button (visible only when authenticated) calls resetAdmin() then automatically calls initializeAdmin() to reclaim the slot, then re-queries admin status to update the UI. (5) Render the dashboard (AdminSidebar + CMSContentEditor) only when the authenticated user is confirmed admin. All buttons must be styled in the monochrome editorial style (black/white/grayscale only, no color accents).",
+      "reqIds": [
+        "REQ-33"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-frontend-src-components-header-tsx-to-add-an-internet-identity-login-button-positioned-next-to-the-dark-light-mode-toggle-icon-in-the-top-right-corner-the-login-button-must-be-visible-only-when-the-user-is-not-authenticated-no-active-internet-identity-session-use-the-existing-useinternetidentity-hook-s-login-function-to-trigger-the-authentication-flow-the-button-must-be-styled-in-the-monochrome-editorial-style-black-white-grayscale-only-no-color-accents-use-a-minimal-ghost-or-outlined-button-style-consistent-with-the-rest-of-the-site-when-the-user-is-authenticated-the-login-button-must-not-be-shown",
+      "title": "Update frontend/src/components/Header.tsx to add an Internet Identity login button positioned next to the dark/light mode toggle icon in the top-right corner. The login button must be visible only when the user is NOT authenticated (no active Internet Identity session). Use the existing useInternetIdentity hook's login function to trigger the authentication flow. The button must be styled in the monochrome editorial style (black/white/grayscale only, no color accents) — use a minimal ghost or outlined button style consistent with the rest of the site. When the user is authenticated, the login button must not be shown.",
+      "reqIds": [
+        "REQ-35"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-rewrite-frontend-src-components-header-tsx-to-reliably-render-an-internet-identity-login-button-next-to-the-dark-light-mode-toggle-icon-in-the-top-right-corner-of-every-page-the-login-button-must-1-be-visible-only-when-the-user-is-not-authenticated-no-active-internet-identity-session-as-determined-by-the-useinternetidentity-hook-s-isauthenticated-or-identity-state-2-call-the-hook-s-login-function-on-click-to-trigger-the-internet-identity-authentication-flow-3-be-styled-in-the-monochrome-editorial-style-ghost-or-outlined-button-black-white-grayscale-only-no-color-accents-4-disappear-completely-once-the-user-is-authenticated-ensure-the-hook-is-correctly-imported-from-its-canonical-path-and-that-the-component-actually-reads-authentication-state-at-render-time-so-the-button-appears-on-first-load-when-the-user-is-not-logged-in",
+      "title": "Rewrite frontend/src/components/Header.tsx to reliably render an Internet Identity login button next to the dark/light mode toggle icon in the top-right corner of every page. The login button must: (1) be visible only when the user is NOT authenticated (no active Internet Identity session), as determined by the useInternetIdentity hook's isAuthenticated or identity state; (2) call the hook's login function on click to trigger the Internet Identity authentication flow; (3) be styled in the monochrome editorial style — ghost or outlined button, black/white/grayscale only, no color accents; (4) disappear completely once the user is authenticated. Ensure the hook is correctly imported from its canonical path and that the component actually reads authentication state at render time so the button appears on first load when the user is not logged in.",
+      "reqIds": [
+        "REQ-36"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-in-the-press-kit-screenshots-gallery-frontend-src-pages-presskitpage-tsx-add-a-1-pixel-solid-black-border-to-every-screenshot-image-in-the-responsive-grid-the-border-must-also-apply-to-the-image-displayed-inside-the-fullscreen-overlay-in-dark-mode-the-border-should-be-1px-solid-white-to-remain-visible-against-the-dark-background-the-border-must-be-applied-directly-to-the-img-elements-via-tailwind-classes-or-inline-styles",
+      "title": "In the Press Kit screenshots gallery (frontend/src/pages/PressKitPage.tsx), add a 1-pixel solid black border to every screenshot image in the responsive grid. The border must also apply to the image displayed inside the fullscreen overlay. In dark mode, the border should be 1px solid white (to remain visible against the dark background). The border must be applied directly to the <img> elements via Tailwind classes or inline styles.",
+      "reqIds": [
+        "REQ-37"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-rewrite-frontend-src-components-header-tsx-from-scratch-to-definitively-fix-the-internet-identity-login-button-the-component-must-1-import-useinternetidentity-from-its-canonical-path-frontend-src-hooks-useinternetidentity-2-read-isauthenticated-or-equivalent-identity-principal-state-from-the-hook-synchronously-at-render-time-do-not-gate-the-button-on-any-async-loading-flag-that-delays-its-appearance-3-render-a-sign-in-button-in-the-top-right-corner-alongside-the-dark-light-theme-toggle-whenever-isauthenticated-is-false-4-call-the-hook-s-login-function-on-button-click-to-trigger-the-internet-identity-authentication-popup-5-hide-the-sign-in-button-completely-once-isauthenticated-is-true-6-style-the-button-in-the-monochrome-editorial-style-ghost-or-outlined-black-white-grayscale-only-no-color-accents-the-button-must-be-visible-on-first-page-load-when-the-user-is-not-logged-in-with-no-delay-or-flicker-caused-by-initialization-guards",
+      "title": "Rewrite frontend/src/components/Header.tsx from scratch to definitively fix the Internet Identity login button. The component must: (1) import useInternetIdentity from its canonical path 'frontend/src/hooks/useInternetIdentity'; (2) read isAuthenticated (or equivalent identity/principal state) from the hook synchronously at render time — do not gate the button on any async loading flag that delays its appearance; (3) render a 'Sign In' button in the top-right corner (alongside the dark/light theme toggle) whenever isAuthenticated is false; (4) call the hook's login() function on button click to trigger the Internet Identity authentication popup; (5) hide the 'Sign In' button completely once isAuthenticated is true; (6) style the button in the monochrome editorial style — ghost or outlined, black/white/grayscale only, no color accents. The button must be visible on first page load when the user is not logged in, with no delay or flicker caused by initialization guards.",
+      "reqIds": [
+        "REQ-38"
       ],
       "version": 1
     }
@@ -369,6 +411,34 @@
       "reqIds": [
         "REQ-29"
       ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-32",
+      "summary": "Diagnose and fix the ICP production deployment failure. The local/proxy build works correctly but the canister deployment to the IC mainnet is failing. Audit the dfx.json configuration, canister build pipeline, and any network-specific settings. Ensure the frontend and backend canisters are correctly configured for ic network deployment, that asset paths and canister IDs resolve correctly in production, and that the deployed build succeeds end-to-end.",
+      "reqIds": [
+        "REQ-32"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-34",
+      "summary": "Audit and harden the Motoko backend (backend/main.mo) admin functions. Ensure: (1) resetAdmin() is a public update function with no access guard that sets adminPrincipal to null. (2) initializeAdmin() correctly checks if adminPrincipal is null before allowing a new principal to claim it — use proper option type null comparison. (3) getAdminStatus() returns a Bool indicating whether adminPrincipal is currently set. (4) isAdmin(p: Principal) correctly compares the calling principal against the stored adminPrincipal. No other CMS stable variables should be affected.",
+      "reqIds": [
+        "REQ-34"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-35",
+      "summary": "Add an Internet Identity login button next to the dark/light mode toggle icon (top-right corner), visible when the user is not authenticated. After login, re-evaluate admin status and auto-call initializeAdmin() if no admin is set.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-36",
+      "summary": "Add a 1-pixel black border around each screenshot image in the Press Kit screenshots gallery",
+      "reqIds": [],
       "status": "pending"
     }
   ],

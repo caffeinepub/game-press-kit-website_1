@@ -1,48 +1,41 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix admin system: add reset endpoint and correct principal-based admin initialization",
+  "title": "Screenshot 1px border + reliable Internet Identity login in header",
   "requirements": [
     {
-      "id": "REQ-30",
-      "summary": "Auto-initialize admin after login if no admin exists, with correct state evaluation",
+      "id": "REQ-37",
+      "summary": "Add 1px border to screenshot images in press kit gallery with dark mode support",
       "acceptanceCriteria": [
-        "After login, getAdminStatus() is called before deciding whether to show dashboard or access denied",
-        "If no admin is set, initializeAdmin() is called automatically and the user gains admin access",
-        "If admin is already set and matches the logged-in principal, dashboard renders correctly",
-        "If admin is already set and does not match, access denied screen is shown",
-        "The UI does not get stuck in a loading or stale state after the login + initialize sequence",
-        "React Query cache is invalidated or refetched after initializeAdmin() so fresh admin status is used"
+        "Each screenshot thumbnail in the grid has a visible 1px solid black border in light mode",
+        "Each screenshot thumbnail in the grid has a visible 1px solid white border in dark mode",
+        "The fullscreen overlay image also has the 1px border applied",
+        "No other UI elements gain unexpected borders"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/AdminDashboard.tsx",
+          "path": "frontend/src/pages/PressKitPage.tsx",
           "operation": "modify",
-          "description": "Modify the admin authentication flow to call getAdminStatus() after login, then auto-call initializeAdmin() if no admin exists. After initializeAdmin() succeeds, invalidate the React Query cache for admin status and re-query to confirm the user is now admin. Ensure the UI correctly reflects the true state after each async step (login → check status → initialize if empty → re-check → render dashboard or access denied). Use the authorization component's backend capabilities for getAdminStatus() and initializeAdmin(). Verify the component's usage instructions before implementing."
+          "description": "Add 1px solid border to all screenshot <img> elements in the responsive grid using Tailwind classes 'border border-black dark:border-white'. Apply the same border classes to the fullscreen overlay <img> element that displays when a screenshot is clicked. Ensure the border is applied directly to the img tags, not to wrapper divs, and verify the border is visible in both light and dark modes without affecting any other UI elements."
         }
       ]
     },
     {
-      "id": "REQ-31",
-      "summary": "Add Reset Admin Access button on access-denied screen with monochrome styling",
+      "id": "REQ-38",
+      "summary": "Rewrite Header component to show working Internet Identity sign-in button on first render",
       "acceptanceCriteria": [
-        "Reset Admin Access button appears on the access denied screen only when the user is authenticated",
-        "Clicking the button calls resetAdmin() followed by initializeAdmin()",
-        "After successful reset and claim, the dashboard renders for the new admin",
-        "Button is styled with monochrome colors only",
-        "Loading state is shown while reset/initialize is in progress",
-        "Error state is shown if the operation fails"
+        "The 'Sign In' button is visible in the top-right corner on first page load when the user has no active Internet Identity session",
+        "Clicking 'Sign In' opens the Internet Identity authentication popup",
+        "After successful login, the 'Sign In' button disappears from the header",
+        "The button is styled monochromatically (no color accents, black/white/grayscale only)",
+        "The button appears on all four routes: /, /press-kit, /admin, /admin/settings",
+        "No initialization loading guard delays or prevents the button from rendering when unauthenticated"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/AdminDashboard.tsx",
+          "path": "frontend/src/components/Header.tsx",
           "operation": "modify",
-          "description": "Add a 'Reset Admin Access' button to the access-denied screen that only appears when the user is authenticated. On click, call resetAdmin() from the backend, then immediately call initializeAdmin() to claim admin for the current user. Show loading state during the operation and error state if it fails. After success, invalidate React Query cache and re-render the dashboard. Style the button in monochrome editorial style (black background with white text or outlined ghost style, using only #000000, #FFFFFF, and grayscale tones). Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/hooks/useQueries.ts",
-          "operation": "modify",
-          "description": "Add a React Query mutation hook for the resetAdmin() backend capability. This hook should call actor.resetAdmin(), return the result, and provide loading/error states. Do not include invalidation logic in the hook itself; let the calling component handle cache invalidation after the mutation succeeds."
+          "description": "Completely rewrite the Header component to fix the Internet Identity login button. Import useInternetIdentity from 'frontend/src/hooks/useInternetIdentity' and read the identity field synchronously at render time. Render a 'Sign In' button in the top-right corner (next to the theme toggle) whenever identity is null or undefined—do not gate the button's visibility on loginStatus === 'idle' or any other async loading flag. On button click, call the login() function from the hook to trigger the Internet Identity popup. Hide the 'Sign In' button completely when identity is truthy (user is authenticated). Style the button using monochrome classes only: ghost or outlined style with black text in light mode and white text in dark mode, no color accents. Remove any initialization guards or loginStatus checks that prevent the button from appearing immediately on first page load when the user is unauthenticated. Ensure the button is visible and functional on all routes."
         }
       ]
     }

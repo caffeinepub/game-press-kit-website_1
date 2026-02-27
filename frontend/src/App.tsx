@@ -1,5 +1,5 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
-import { createRouter, createRoute, createRootRoute, RouterProvider, Outlet, redirect } from '@tanstack/react-router';
+import { createRouter, createRoute, createRootRoute, RouterProvider, Outlet } from '@tanstack/react-router';
 import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useGetAdminStatus, useGetBodyTextColor, useGetCallerUserProfile, useSaveCallerUserProfile } from './hooks/useQueries';
 import { useTheme } from './hooks/useTheme';
@@ -78,7 +78,7 @@ function Layout() {
   return (
     <EditModeContext.Provider value={editModeState}>
       <div className="min-h-screen flex flex-col">
-        <Header isAdmin={!!isAdmin} />
+        <Header />
         <main className="flex-1">
           <Outlet />
         </main>

@@ -1,12 +1,10 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the admin principal system by adding a `resetAdmin()` backend function and correcting `initializeAdmin()` logic, then updating the frontend to auto-claim admin on login and provide a reset flow from the access-denied screen.
+**Goal:** Add 1px borders to screenshot images in the Press Kit gallery and fix the Internet Identity "Sign In" button in the header so it reliably appears on first page load.
 
 **Planned changes:**
-- Add a `resetAdmin()` public update function to the Motoko backend that sets `adminPrincipal` to `null` with no access control, leaving all other CMS stable variables untouched
-- Fix `initializeAdmin()` to correctly use null/option comparison so it allows claiming when the slot is empty and rejects with "Admin already initialized" when already set
-- Update `AdminDashboard.tsx` so that after Internet Identity login, it calls `getAdminStatus()`, and if no admin exists, automatically calls `initializeAdmin()` to claim the slot, then re-evaluates and renders the dashboard or access-denied screen accordingly
-- Add a "Reset Admin Access" button to the access-denied screen (visible only when authenticated) that calls `resetAdmin()` then `initializeAdmin()`, styled in monochrome (black/white/grayscale only), with loading and error states
+- Add a 1px solid black border (1px solid white in dark mode) to every screenshot thumbnail in the Press Kit grid and to the fullscreen overlay image, applied directly on the `<img>` elements
+- Rewrite `Header.tsx` to correctly import and use the `useInternetIdentity` hook, rendering a monochrome "Sign In" button in the top-right corner (next to the theme toggle) when the user is not authenticated, and hiding it once authenticated — with no initialization delay or flicker
 
-**User-visible outcome:** An authenticated user who encounters the access-denied screen can click "Reset Admin Access" to clear the admin slot and immediately claim it, and any newly logged-in user will automatically become admin if no admin is currently set.
+**User-visible outcome:** Screenshot images in the Press Kit page will have a thin border for clarity. The "Sign In" button will be reliably visible in the header on first load when the user has no active Internet Identity session, and will disappear after a successful login.

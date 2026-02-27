@@ -237,7 +237,7 @@ export default function PressKitPage() {
                 <img
                   src={src}
                   alt={`Screenshot ${i + 1}`}
-                  className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300 border border-black dark:border-white"
                 />
               </button>
             ))}
@@ -398,7 +398,7 @@ export default function PressKitPage() {
           <img
             src={SCREENSHOTS[fullscreenIndex]}
             alt={`Screenshot ${fullscreenIndex + 1}`}
-            className="max-w-full max-h-full object-contain cursor-pointer"
+            className="max-w-full max-h-full object-contain cursor-pointer border border-white"
             onClick={() => setFullscreenIndex(null)}
           />
           <button
@@ -435,13 +435,13 @@ function EditableTextArea({ value, onSave }: { value: string; onSave: (v: string
       <textarea
         value={text}
         onChange={e => setText(e.target.value)}
-        rows={5}
-        className="w-full max-w-2xl px-3 py-2 text-base bg-background/80 text-foreground border border-foreground/20 focus:outline-none focus:border-foreground/60 resize-none transition-colors"
+        rows={6}
+        className="w-full max-w-2xl bg-transparent border border-foreground/20 p-3 text-base leading-relaxed resize-y focus:outline-none focus:border-foreground/50"
       />
       <button
         onClick={handleSave}
         disabled={saving || text === value}
-        className="px-4 py-1.5 text-xs bg-foreground text-background hover:bg-foreground/85 transition-colors disabled:opacity-40"
+        className="text-xs px-4 py-1.5 border border-foreground/30 hover:border-foreground/70 disabled:opacity-40 transition-colors"
       >
         {saving ? 'Saving…' : 'Save'}
       </button>

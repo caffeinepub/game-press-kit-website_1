@@ -60,19 +60,22 @@ actor {
   var pressEmail : Text = "press@game.com";
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can view profiles");
+    };
     userProfiles.get(caller);
   };
 
   public query ({ caller }) func getUserProfile(user : Principal) : async ?UserProfile {
     if (caller != user and not AccessControl.isAdmin(accessControlState, caller)) {
-      return null;
+      Runtime.trap("Unauthorized: Can only view your own profile");
     };
     userProfiles.get(user);
   };
 
   public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {
     if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
-      return;
+      Runtime.trap("Unauthorized: Only users can save profiles");
     };
     userProfiles.add(caller, profile);
   };
@@ -92,15 +95,11 @@ actor {
     result;
   };
 
-  // No access control guard — any caller can reset the admin slot
-  public shared func resetAdmin() : async () {
-    adminPrincipal := null;
-  };
-
   public shared ({ caller }) func initializeAdmin(adminToken : Text, userProvidedToken : Text) : async AdminResult {
     if (caller.isAnonymous()) {
       return #error("Anonymous principals cannot become admin");
     };
+
     // Check if admin slot is already occupied using the stable variable
     switch (adminPrincipal) {
       case (?_existing) {
@@ -115,12 +114,24 @@ actor {
     };
   };
 
-  public query ({ caller }) func getAdminStatus() : async Bool {
-    AccessControl.isAdmin(accessControlState, caller);
+  // No access guard: anyone can reset admin (per implementation plan)
+  public shared func resetAdmin() : async () {
+    adminPrincipal := null;
   };
 
-  public query ({ caller }) func isAdmin(principal : Principal) : async Bool {
-    AccessControl.isAdmin(accessControlState, principal);
+  public query func getAdminStatus() : async Bool {
+    switch (adminPrincipal) {
+      case (?_p) { true };
+      case (null) { false };
+    };
+  };
+
+  // Compares the given principal against the stored adminPrincipal stable variable
+  public query func isAdmin(p : Principal) : async Bool {
+    switch (adminPrincipal) {
+      case (?stored) { stored == p };
+      case null { false };
+    };
   };
 
   public shared ({ caller }) func enablePasswordProtection(password_ : Text) : async AdminResult {

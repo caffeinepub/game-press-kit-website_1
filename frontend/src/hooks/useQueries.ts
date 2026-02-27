@@ -16,6 +16,18 @@ export function useGetAdminStatus() {
   });
 }
 
+export function useIsCallerAdmin() {
+  const { actor, isFetching } = useActor();
+  return useQuery<boolean>({
+    queryKey: ['isCallerAdmin'],
+    queryFn: async () => {
+      if (!actor) return false;
+      return actor.isCallerAdmin();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
 export function useGetCallerUserProfile() {
   const { actor, isFetching: actorFetching } = useActor();
   const query = useQuery({
@@ -174,7 +186,6 @@ export function useInitializeAdmin() {
   return useMutation({
     mutationFn: async () => {
       if (!actor) throw new Error('Actor not available');
-      // Pass empty strings for tokens — the backend accepts these when no admin is set yet
       const result = await actor.initializeAdmin('', '');
       if (result.__kind__ === 'error') {
         throw new Error(result.error);
@@ -183,6 +194,7 @@ export function useInitializeAdmin() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['adminStatus'] });
+      queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
       queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
     },
   });
@@ -192,13 +204,16 @@ export function useInitializeAdmin() {
 
 export function useResetAdmin() {
   const { actor } = useActor();
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
       if (!actor) throw new Error('Actor not available');
       await actor.resetAdmin();
     },
-    // No cache invalidation here — let the calling component handle it
-    // after the full reset + re-initialize sequence completes
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminStatus'] });
+      queryClient.invalidateQueries({ queryKey: ['isCallerAdmin'] });
+    },
   });
 }
 
@@ -311,10 +326,28 @@ export function useCheckPasswordEnabled() {
     queryKey: ['passwordStatus'],
     queryFn: async () => {
       if (!actor) return false;
-      // If verifyPassword('') returns true, protection is disabled
-      const result = await actor.verifyPassword('__check_enabled__');
-      return !result; // true = protection enabled
+      // verifyPassword('') returns true when protection is disabled
+      const result = await actor.verifyPassword('');
+      return !result; // true = protection enabled, false = disabled
     },
     enabled: !!actor && !isFetching,
+  });
+}
+
+export function useRegeneratePassword() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (newPassword: string) => {
+      if (!actor) throw new Error('Actor not available');
+      // Disable then re-enable with new password
+      await actor.disablePasswordProtection();
+      const result = await actor.enablePasswordProtection(newPassword);
+      if (result.__kind__ === 'error') throw new Error(result.error);
+      return result;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['passwordStatus'] });
+    },
   });
 }
